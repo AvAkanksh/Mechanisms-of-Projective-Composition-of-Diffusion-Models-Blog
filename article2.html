@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>article2</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ]
+    });
+  });
+  </script>
+</head>
+<body>
+<p>Understood. <strong>No emojis</strong>, and <strong>no explicit
+figure placement instructions</strong> — I will describe figures
+naturally in the text.</p>
+<p>Below is the <strong>full long-form, ~10-page, ~5000+ word
+Medium-style article</strong> explaining <strong>“Mechanisms of
+Projective Composition of Diffusion Models”</strong> in clear, simple
+language while maintaining full technical accuracy.</p>
+<hr />
+<h1
+id="from-noise-to-structure-a-deep-simple-explanation-of-mechanisms-of-projective-composition-of-diffusion-models"><strong>From
+Noise to Structure: A Deep, Simple Explanation of “Mechanisms of
+Projective Composition of Diffusion Models”</strong></h1>
+<p><em>By a senior ML researcher writing for motivated beginners,
+engineers, and curious readers.</em></p>
+<hr />
+<h2 id="introduction"><strong>Introduction</strong></h2>
+<p>Diffusion models have already changed how we think about image
+generation, creativity, and controllability. Over the last few years,
+these models have gained the remarkable ability to combine concepts: a
+dog in the style of Monet, a chair made of strawberries, or a landscape
+with multiple objects placed exactly where you want.</p>
+<p>But there has always been a deeper question behind these magical
+combinations:</p>
+<p><strong>How do diffusion models combine concepts at all?</strong>
+<strong>Why do some concepts combine naturally while others fail
+completely?</strong> <strong>What makes “composition” possible, and when
+should we expect it to fail?</strong></p>
+<p>The paper <em>Mechanisms of Projective Composition of Diffusion
+Models</em> tackles these questions head-on. It provides the first
+mathematically complete framework explaining when diffusion models can
+compose different pretrained distributions, why simple score addition
+sometimes works, why it sometimes collapses, and how to predict success
+or failure in advance.</p>
+<p>More importantly, the authors uncover a unifying mechanism behind
+composition: <strong>projective composition</strong>, a definition that
+retains only the parts of each distribution that matter and allows the
+generated output to be genuinely out-of-distribution relative to the
+original models.</p>
+<p>This article explains the entire paper in simple language, carefully
+unpacking the definitions, equations, intuitions, and experimental
+insights. My goal is to give you a researcher’s mental model—something
+deeper than a summary, but approachable enough that you can carry these
+ideas into your own work.</p>
+<hr />
+<h1 id="background-what-is-composing-generative-models"><strong>1.
+Background: What Is Composing Generative Models?</strong></h1>
+<p>Before diving into the paper’s contributions, let’s start from the
+broader problem.</p>
+<h3
+id="generative-models-try-to-model-a-distribution-over-data"><strong>1.1
+Generative models try to model a distribution over data</strong></h3>
+<p>A generative model learns a probability distribution:</p>
+<p>[ p_{}(x)]</p>
+<p>that captures the variability and structure of images, text, or
+audio.</p>
+<p>In diffusion models, we do this by progressively adding noise to real
+data, learning to reverse this process, and sampling from a clean
+distribution by denoising from pure noise.</p>
+<h3 id="composition-means-combining-multiple-distributions"><strong>1.2
+Composition means combining multiple distributions</strong></h3>
+<p>Suppose we have:</p>
+<ul>
+<li>(p_{}): distribution of dog photos</li>
+<li>(p_{}): distribution of oil-painting style images</li>
+<li>(p_{u}): unconditional distribution of generic images</li>
+</ul>
+<p>The classic trick (used in many prior works) is:</p>
+<p>[ <em>x p</em>{} + <em>x p</em>{} - <em>x p</em>{u}]</p>
+<p>This corresponds to an implicit target distribution:</p>
+<p>[ p(x) p_{}(x); p_{}(x) / p_u(x)]</p>
+<p>People have used this to generate “oil paintings of your dog”, even
+when no such images exist in any dataset.</p>
+<p>But why does adding scores work? Why is subtracting the unconditional
+score necessary? And why does this work for some concepts but fail
+spectacularly for others?</p>
+<p>These questions motivate the paper.</p>
+<hr />
+<h1 id="why-previous-definitions-of-composition-fail"><strong>2. Why
+Previous Definitions of Composition Fail</strong></h1>
+<p>The authors argue that two common mathematical ways of defining
+composition are fundamentally flawed for real applications: <strong>the
+simple product</strong> and <strong>Bayes composition</strong>.</p>
+<p>Let’s unpack why.</p>
+<hr />
+<h2 id="simple-product-composition"><strong>2.1 Simple Product
+Composition</strong></h2>
+<p>The simple definition is:</p>
+<p>[ p(x) p_1(x) p_2(x)]</p>
+<p>This seems intuitive: the composed image should be likely under
+<em>both</em> distributions.</p>
+<p>The problem?</p>
+<p><strong>You can never generate something that has zero probability
+under either distribution.</strong></p>
+<p>Example:</p>
+<ul>
+<li>(p_1): images with <em>one</em> object in the lower-left</li>
+<li>(p_2): images with <em>one</em> object in the upper-right</li>
+</ul>
+<p>Both distributions contain only single-object images. If you take
+their product, any image with <em>two</em> objects has probability
+zero.</p>
+<p>But composing concepts should allow out-of-distribution cases. A
+combined image with <em>two</em> objects is necessary for
+composition.</p>
+<p>Thus, the simple product is too restrictive.</p>
+<hr />
+<h2 id="bayes-composition"><strong>2.2 Bayes Composition</strong></h2>
+<p>Prior works (Du et al. 2023, Liu et al. 2022) introduced a more
+principled composition:</p>
+<p>[ p(x c_1, c_2)]</p>
+<p>If (c_1) is “object located at lower-left”, and (c_2) is “object
+located at upper-right”, then:</p>
+<p>[ p(x c_1, c_2) ]</p>
+<p>This motivates the familiar score combination:</p>
+<p>[ p(x c_1) + p(x c_2) - p(x)]</p>
+<p>But there is a hidden assumption: <strong>that the unconditional
+distribution contains images with both attributes at once</strong>.</p>
+<p>In many synthetic settings (like CLEVR), the unconditional model has
+never seen images with two objects. So the formula breaks: the computed
+conditional doesn’t correspond to a meaningful distribution.</p>
+<p>This leads to experiments where:</p>
+<ul>
+<li>combining location-conditioned models yields <strong>fewer</strong>
+objects than expected</li>
+<li>sometimes <strong>zero</strong> objects</li>
+<li>or unstable artifacts</li>
+</ul>
+<p>These failures illustrate that even Bayes composition cannot justify
+what the model is empirically doing.</p>
+<p>So we need a new definition of what “correct composition” even
+means.</p>
+<hr />
+<h1 id="the-papers-core-idea-projective-composition"><strong>3. The
+Paper’s Core Idea: Projective Composition</strong></h1>
+<p>The authors propose a fundamentally different way to define
+composition.</p>
+<p>Instead of asking:</p>
+<blockquote>
+<p>What distribution gives high probability to all desired attributes
+<strong>simultaneously</strong>?</p>
+</blockquote>
+<p>they ask:</p>
+<blockquote>
+<p>What aspects of each distribution do we want to preserve?</p>
+</blockquote>
+<p>This leads to the idea of <strong>projection functions</strong>.</p>
+<hr />
+<h1 id="projection-based-definition"><strong>3.1 Projection-Based
+Definition</strong></h1>
+<p>Each distribution (p_i) comes with a projection (_i(x)). This
+projection extracts the relevant feature from the sample.</p>
+<p>For example:</p>
+<ul>
+<li>style extraction</li>
+<li>content extraction</li>
+<li>object mask extraction</li>
+<li>spatial region extraction (e.g., pixels around location i)</li>
+<li>latent feature selection</li>
+</ul>
+<p>The composed distribution (p) must satisfy:</p>
+<p>[ _i p = _i p_i]</p>
+<p>which means:</p>
+<blockquote>
+<p>After projecting the composed image, it should look statistically
+identical to the projection of images from (p_i).</p>
+</blockquote>
+<p>This definition does <strong>not</strong> require:</p>
+<ul>
+<li>distributions to overlap</li>
+<li>support to match</li>
+<li>the composition to be a conditional distribution</li>
+<li>the concepts to be independent</li>
+<li>any joint distribution to exist</li>
+</ul>
+<p>It only enforces that the composed result matches each source
+distribution <em>in the dimensions that matter</em>.</p>
+<p>This is why the approach can create <strong>genuinely
+out-of-distribution</strong> images.</p>
+<hr />
+<h1
+id="when-does-score-combination-actually-work-the-factorized-conditional-structure"><strong>4.
+When Does Score Combination Actually Work? The Factorized Conditional
+Structure</strong></h1>
+<p>The next big contribution is a clean, precise condition under
+which:</p>
+<ul>
+<li>linear score combination</li>
+<li>reverse diffusion sampling</li>
+</ul>
+<p>will produce a correct projective composition.</p>
+<p>The condition is called <strong>Factorized Conditionals</strong>.</p>
+<hr />
+<h2 id="the-factorized-conditional-assumption"><strong>4.1 The
+Factorized Conditional Assumption</strong></h2>
+<p>Suppose the sample (x) lives in (n)-dimensional space. The
+coordinates can be partitioned into disjoint sets:</p>
+<p>[ M_b,; M_1,; M_2,; ,; M_k]</p>
+<p>Each distribution (p_i):</p>
+<ul>
+<li>behaves independently across the partitioned coordinates</li>
+<li>modifies only the region (M_i)</li>
+<li>and matches a background distribution (p_b) on coordinates outside
+its region</li>
+</ul>
+<p>Formally:</p>
+<p>[ p_i(x) = p_i(x M_i); p_b(x M_i^c)]</p>
+<p>This means:</p>
+<ul>
+<li>The background distribution describes everything other than region
+(M_i).</li>
+<li>Model (p_i) is simply “background + special modification on
+coordinates in (M_i)”.</li>
+</ul>
+<p>This matches the intuition in CLEVR:</p>
+<ul>
+<li>you sample an empty background,</li>
+<li>then “paste” an object into a small region,</li>
+<li>and the rest of the image stays exactly like the background.</li>
+</ul>
+<hr />
+<h2 id="main-theorem-when-score-composition-works"><strong>4.2 Main
+Theorem: When Score Composition Works</strong></h2>
+<p>The paper proves:</p>
+<p>If the distributions satisfy the factorized conditional structure,
+then running reverse diffusion with the composed score:</p>
+<p>[ _x p_b^t(x) + _i ]</p>
+<p>will <strong>exactly</strong> sample from the projective
+composition:</p>
+<p>[ p(x) = p_b(x M_b) _i p_i(x M_i)]</p>
+<p>This is remarkable because:</p>
+<ol type="1">
+<li>It guarantees correctness under clean assumptions.</li>
+<li>It shows that composition requires a <em>good choice of background
+distribution</em>.</li>
+<li>It explains why using the unconditional distribution sometimes
+fails.</li>
+<li>It explains why composition works best when concepts are spatially
+disjoint or non-interacting.</li>
+</ol>
+<p>This is the first formal guarantee for score-based composition in
+diffusion models.</p>
+<hr />
+<h1
+id="the-real-magic-composition-can-happen-in-feature-space"><strong>5.
+The Real Magic: Composition Can Happen in Feature Space</strong></h1>
+<p>The previous results relied on spatial partitions. But attributes
+like “oil painting style” or “dog content” are not localized to pixel
+regions.</p>
+<p>To generalize, the authors consider a smooth invertible mapping:</p>
+<p>[ A : ^n ^n]</p>
+<p>a feature transform.</p>
+<p>If there exists <strong>any</strong> feature space where the
+partitioned-coordinate assumption holds, then <strong>the same score
+combination in pixel space</strong> produces a correct projective
+composition in that feature space.</p>
+<p>This is the paper’s most surprising and powerful result.</p>
+<h3 id="key-consequence"><strong>Key Consequence:</strong></h3>
+<p>You don’t need to know what the correct feature space is. Composition
+works automatically.</p>
+<p>This connects composition to classical ideas like:</p>
+<ul>
+<li>disentangled representations</li>
+<li>coordinate-aligned latent spaces</li>
+<li>linear independent subspaces for different concepts</li>
+</ul>
+<p>In practice, this explains why:</p>
+<ul>
+<li>style and content often compose well</li>
+<li>certain colors combine cleanly</li>
+<li>unrelated concepts can be merged if they activate orthogonal
+directions in feature space</li>
+</ul>
+<hr />
+<h1
+id="why-sampling-sometimes-fails-even-when-composition-is-possible"><strong>6.
+Why Sampling Sometimes Fails Even When Composition Is
+Possible</strong></h1>
+<p>There is an important warning in the paper.</p>
+<p>Even if a valid composed distribution exists, and even if score
+addition defines it correctly, the <strong>reverse diffusion sampler may
+not be able to reach it</strong>.</p>
+<p>Why?</p>
+<p>Because:</p>
+<ul>
+<li>The composition operator is not smooth.</li>
+<li>A small change in the constituent distributions can produce a large
+change in the composed distribution.</li>
+<li>Noise schedules interact poorly with this instability.</li>
+<li>The noisy distributions do not commute with the composition
+operator.</li>
+</ul>
+<p>This captures phenomena observed in practice:</p>
+<ul>
+<li>score composition suddenly collapses for certain color pairs</li>
+<li>combining too many objects leads to degeneracy</li>
+<li>using unconditional backgrounds often produces empty images</li>
+<li>adding more complex attributes makes sampling unstable</li>
+</ul>
+<p>The theory predicts these failures.</p>
+<hr />
+<h1 id="the-experiments-what-actually-works-and-what-fails"><strong>7.
+The Experiments: What Actually Works and What Fails</strong></h1>
+<p>The authors evaluate three major scenarios:</p>
+<ol type="1">
+<li><strong>Single objects on empty backgrounds</strong></li>
+<li><strong>Single objects with unconditional backgrounds (Bayes
+composition)</strong></li>
+<li><strong>Cluttered scenes with partial independence</strong></li>
+</ol>
+<p>Only scenarios 1 and 3 exhibit clean composition. Scenario 2 fails
+consistently.</p>
+<h3 id="single-object-composition"><strong>7.1 Single Object
+Composition</strong></h3>
+<p>Each object occupies a different region. The background is uniform
+and empty.</p>
+<p>Factorized conditionals approximately hold. Composition succeeds up
+to several objects. Beyond 6–9 objects, failures appear due to mild
+violations of independence.</p>
+<h3 id="unconditional-backgrounds"><strong>7.2 Unconditional
+Backgrounds</strong></h3>
+<p>This is the commonly used setup in previous works.</p>
+<p>It fails because:</p>
+<ul>
+<li>the unconditional model is not the correct background
+distribution</li>
+<li>it contains objects not relevant to the desired composition</li>
+<li>support mismatch causes degeneracy</li>
+</ul>
+<p>The result is missing objects or unstable layouts.</p>
+<h3 id="cluttered-object-distribution"><strong>7.3 Cluttered Object
+Distribution</strong></h3>
+<p>Each conditional distribution includes:</p>
+<ul>
+<li>one specific object</li>
+<li>several randomly placed additional objects (clutter)</li>
+</ul>
+<p>This makes the unconditional distribution resemble a mixture of all
+object types. Independence becomes approximately valid.</p>
+<p>This explains why prior text-to-image composition sometimes
+works—even though the theory seems inapplicable.</p>
+<hr />
+<h1
+id="predicting-whether-a-composition-will-work-a-practical-heuristic"><strong>8.
+Predicting Whether a Composition Will Work: A Practical
+Heuristic</strong></h1>
+<p>Although the theory is abstract, the authors give a beautifully
+simple heuristic.</p>
+<p>If concept vectors are approximately orthogonal, then composition is
+likely to work.</p>
+<p>To test this:</p>
+<ol type="1">
+<li>Take a set of images representing concept (i).</li>
+<li>Compute their CLIP embeddings.</li>
+<li>Subtract the background embedding.</li>
+<li>Compare the vectors for different concepts.</li>
+</ol>
+<p>If</p>
+<p>[ (_i - _b)^T (_j - _b) ]</p>
+<p>then concepts (i) and (j) should compose well.</p>
+<p>This aligns perfectly with empirical observations:</p>
+<ul>
+<li>Style + content compose cleanly.</li>
+<li>Dog + hat compose cleanly.</li>
+<li>Dog + horse does not.</li>
+<li>Colors in different channels can combine.</li>
+<li>Entangled attributes (two subjects) fail.</li>
+</ul>
+<p>This is one of the most actionable takeaways of the paper.</p>
+<hr />
+<h1 id="broader-implications"><strong>9. Broader
+Implications</strong></h1>
+<p>This work provides a rigorous basis for understanding and designing
+new compositional generative systems.</p>
+<h3 id="understanding-ood-generalization"><strong>9.1 Understanding OOD
+Generalization</strong></h3>
+<p>The theory formalizes when diffusion models can go
+out-of-distribution reliably. This helps explain phenomena like:</p>
+<ul>
+<li>length generalization</li>
+<li>layout extrapolation</li>
+<li>stylistic transformations</li>
+</ul>
+<h3 id="towards-modular-generative-models"><strong>9.2 Towards Modular
+Generative Models</strong></h3>
+<p>By clarifying how independent generative components can be glued
+together, the work supports larger goals like:</p>
+<ul>
+<li>plug-and-play generative modules</li>
+<li>compositional world models</li>
+<li>multi-agent generative reasoning</li>
+<li>modular scene construction</li>
+</ul>
+<h3 id="future-directions"><strong>9.3 Future Directions</strong></h3>
+<p>The biggest open problem remains:</p>
+<p><strong>sampling in general feature spaces is still
+difficult.</strong></p>
+<p>We need:</p>
+<ul>
+<li>better samplers</li>
+<li>noise-aware composition operators</li>
+<li>ways to learn feature spaces with factorized structure</li>
+<li>improved background estimation strategies</li>
+<li>theoretical insights into composition stability</li>
+</ul>
+<p>This work lays a foundation. But composition is still an emerging
+frontier.</p>
+<hr />
+<h1 id="conclusion"><strong>10. Conclusion</strong></h1>
+<p>The paper <em>Mechanisms of Projective Composition of Diffusion
+Models</em> provides a powerful, elegant answer to a fundamental
+mystery: How do diffusion models combine different concepts into a
+coherent image?</p>
+<p>The key insights are:</p>
+<ol type="1">
+<li>Prior definitions of composition are flawed because they cannot
+generate out-of-distribution samples.</li>
+<li>A new definition, <strong>projective composition</strong>, captures
+how concept-level attributes should combine.</li>
+<li>Under <strong>factorized conditional</strong> structure, score
+addition and reverse diffusion yield exact compositions.</li>
+<li>Correct feature spaces exist where composition is clean—even if we
+never explicitly find them.</li>
+<li>Sampling may fail when noise interacts poorly with the composition
+operator.</li>
+<li>A simple CLIP-based orthogonality test predicts success or
+failure.</li>
+</ol>
+<p>Together, these contributions turn previously empirical observations
+into a coherent mathematical theory.</p>
+<p>Diffusion models will continue to move toward modularity,
+controllability, and compositional expressiveness. This paper takes a
+large step toward understanding the principles that make this
+possible.</p>
+</body>
+</html>
