@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-IN" xml:lang="en-IN">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>article</title>
+  <meta name="author" content="Av Akanksh" />
+  <meta name="dcterms.date" content="2025-11-15" />
+  <title>Mechanisms of Projective Composition of Diffusion Models - Explained in detail</title>
   <style>
     /* Default styles provided by pandoc.
     ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -89,21 +91,55 @@
     code span.vs { color: #4070a0; } /* VerbatimString */
     code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
-  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
-  <script>
-  document.addEventListener("DOMContentLoaded", function() {
-    renderMathInElement(document.body, {
-      delimiters: [
-        {left: "$$", right: "$$", display: true},
-        {left: "$", right: "$", display: false}
-      ]
-    });
-  });
-  </script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/light.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" />
+  <script
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js?config=TeX-AMS_CHTML"
+  type="text/javascript"></script>
 </head>
 <body>
+<header id="title-block-header">
+<h1 class="title">Mechanisms of Projective Composition of Diffusion
+Models - Explained in detail</h1>
+<p class="author">Av Akanksh</p>
+<p class="date">November 15, 2025</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a
+href="#mechanisms-of-projective-composition-of-diffusion-models---explained-in-detail"
+id="toc-mechanisms-of-projective-composition-of-diffusion-models---explained-in-detail">Mechanisms
+of Projective Composition of Diffusion Models - Explained in detail</a>
+<ul>
+<li><a href="#introduction" id="toc-introduction">🧭
+Introduction</a></li>
+<li><a href="#part-1-diffusion-models-101-800-words"
+id="toc-part-1-diffusion-models-101-800-words">📚 Part 1: Diffusion
+Models 101 (800 words)</a></li>
+<li><a href="#part-2-the-papers-core-innovation"
+id="toc-part-2-the-papers-core-innovation">🔬 Part 2: The Paper’s Core
+Innovation</a></li>
+<li><a href="#part-3-math-derivations"
+id="toc-part-3-math-derivations">🧠 Part 3: Math &amp;
+Derivations</a></li>
+<li><a href="#part-4-experiments-results"
+id="toc-part-4-experiments-results">🖼️ Part 4: Experiments &amp;
+Results</a></li>
+<li><a href="#part-5-code-walkthrough-600-words"
+id="toc-part-5-code-walkthrough-600-words">💻 Part 5: Code Walkthrough
+(600 words)</a></li>
+<li><a href="#part-6-implications-future-work-400-words"
+id="toc-part-6-implications-future-work-400-words">🚀 Part 6:
+Implications &amp; Future Work (400 words)</a></li>
+<li><a href="#conclusion-300-words" id="toc-conclusion-300-words">📝
+Conclusion (300 words)</a></li>
+<li><a href="#appendix-400-words" id="toc-appendix-400-words">📖
+Appendix (400 words)</a></li>
+</ul></li>
+</ul>
+</nav>
 <h2
 id="mechanisms-of-projective-composition-of-diffusion-models---explained-in-detail">Mechanisms
 of Projective Composition of Diffusion Models - Explained in detail</h2>
@@ -195,112 +231,88 @@ Process</h4>
 <p>Diffusion models have two parts.</p>
 <p><strong>1. The Forward Process (The “Destroyer”)</strong></p>
 <p>The forward process is simple: we take a real, pristine image (let’s
-call it
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mn>0</mn></msub><annotation encoding="application/x-tex">x_0</annotation></semantics></math>)
-and slowly add a tiny bit of random (Gaussian) noise. We do this again,
-and again, and again, for a set number of steps (say,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>1000</mn></mrow><annotation encoding="application/x-tex">T=1000</annotation></semantics></math>).</p>
-<p>Each step
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
-is defined by a <em>noise schedule</em>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mi>t</mi></msub><annotation encoding="application/x-tex">\beta_t</annotation></semantics></math>.
-It’s just a tiny number that controls how much noise we add. After
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
-steps, the original image
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mn>0</mn></msub><annotation encoding="application/x-tex">x_0</annotation></semantics></math>
-is completely indistinguishable from pure, random noise. We’ll call this
-final noisy image
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>T</mi></msub><annotation encoding="application/x-tex">x_T</annotation></semantics></math>.</p>
+call it <span class="math inline">\(x_0\)</span>) and slowly add a tiny
+bit of random (Gaussian) noise. We do this again, and again, and again,
+for a set number of steps (say, <span
+class="math inline">\(T=1000\)</span>).</p>
+<p>Each step <span class="math inline">\(t\)</span> is defined by a
+<em>noise schedule</em> <span class="math inline">\(\beta_t\)</span>.
+It’s just a tiny number that controls how much noise we add. After <span
+class="math inline">\(T\)</span> steps, the original image <span
+class="math inline">\(x_0\)</span> is completely indistinguishable from
+pure, random noise. We’ll call this final noisy image <span
+class="math inline">\(x_T\)</span>.</p>
 <p>The amazing part is that because this process is just adding simple
 Gaussian noise, we have a direct formula to jump to <em>any</em> noisy
-step
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
-instantly:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mi>t</mi></msub><mo>=</mo><msqrt><msub><mover><mi>α</mi><mo accent="true">‾</mo></mover><mi>t</mi></msub></msqrt><msub><mi>x</mi><mn>0</mn></msub><mo>+</mo><msqrt><mrow><mn>1</mn><mo>−</mo><msub><mover><mi>α</mi><mo accent="true">‾</mo></mover><mi>t</mi></msub></mrow></msqrt><mi>ϵ</mi></mrow><annotation encoding="application/x-tex">x_t = \sqrt{\bar{\alpha}_t}x_0 + \sqrt{1-\bar{\alpha}_t}\epsilon</annotation></semantics></math></p>
-<p>Where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mn>0</mn></msub><annotation encoding="application/x-tex">x_0</annotation></semantics></math>
-is our original image,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϵ</mi><annotation encoding="application/x-tex">\epsilon</annotation></semantics></math>
-is a single blob of pure noise, and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>α</mi><mo accent="true">‾</mo></mover><mi>t</mi></msub><annotation encoding="application/x-tex">\bar{\alpha}_t</annotation></semantics></math>
-is just a pre-calculated number that represents how “signal” vs. “noise”
-is left at step
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>.
-(It’s derived from all the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mi>t</mi></msub><annotation encoding="application/x-tex">\beta_t</annotation></semantics></math>
-values).</p>
+step <span class="math inline">\(t\)</span> instantly:</p>
+<p><span class="math display">\[x_t = \sqrt{\bar{\alpha}_t}x_0 +
+\sqrt{1-\bar{\alpha}_t}\epsilon\]</span></p>
+<p>Where <span class="math inline">\(x_0\)</span> is our original image,
+<span class="math inline">\(\epsilon\)</span> is a single blob of pure
+noise, and <span class="math inline">\(\bar{\alpha}_t\)</span> is just a
+pre-calculated number that represents how “signal” vs. “noise” is left
+at step <span class="math inline">\(t\)</span>. (It’s derived from all
+the <span class="math inline">\(\beta_t\)</span> values).</p>
 <blockquote>
 <p><strong>🧠 Intuitive Analogy: A Drop of Ink</strong></p>
-<p>Think of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mn>0</mn></msub><annotation encoding="application/x-tex">x_0</annotation></semantics></math>
-as a single, tiny, perfect drop of black ink in a glass of water. The
-forward process is like shaking the glass, once per second, for 1000
-seconds. At
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">t=1</annotation></semantics></math>,
-the ink drop is a little blurry. At
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>1000</mn></mrow><annotation encoding="application/x-tex">t=1000</annotation></semantics></math>,
-the ink is so thoroughly mixed that the entire glass is a uniform,
-light-gray. The original drop is gone.</p>
+<p>Think of <span class="math inline">\(x_0\)</span> as a single, tiny,
+perfect drop of black ink in a glass of water. The forward process is
+like shaking the glass, once per second, for 1000 seconds. At <span
+class="math inline">\(t=1\)</span>, the ink drop is a little blurry. At
+<span class="math inline">\(t=1000\)</span>, the ink is so thoroughly
+mixed that the entire glass is a uniform, light-gray. The original drop
+is gone.</p>
 </blockquote>
 <p><strong>2. The Reverse Process (The “Creator”)</strong></p>
 <p>This is where the magic lives. What if we could learn to
 <em>reverse</em> that process? What if we could start with the glass of
-uniformly gray water
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>T</mi></msub><annotation encoding="application/x-tex">x_T</annotation></semantics></math>)
-and, step by step, un-shake it, until the ink coalesces back into a
-single, perfect drop
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mn>0</mn></msub><annotation encoding="application/x-tex">x_0</annotation></semantics></math>)?</p>
-<p>To do this, we need to train a neural network. At any step
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>,
-it looks at the noisy, blurry image
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>t</mi></msub><annotation encoding="application/x-tex">x_t</annotation></semantics></math>
-and has to predict how to make it slightly <em>less</em> noisy.</p>
+uniformly gray water (<span class="math inline">\(x_T\)</span>) and,
+step by step, un-shake it, until the ink coalesces back into a single,
+perfect drop (<span class="math inline">\(x_0\)</span>)?</p>
+<p>To do this, we need to train a neural network. At any step <span
+class="math inline">\(t\)</span>, it looks at the noisy, blurry image
+<span class="math inline">\(x_t\)</span> and has to predict how to make
+it slightly <em>less</em> noisy.</p>
 <p>How does it know what to do? It needs to know the <em>direction</em>
 to step in. In math, this “direction of steepest ascent” for a
 probability distribution is called the <strong>score function</strong>,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>∇</mi><mi>x</mi></msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msub><mi>p</mi><mi>t</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>t</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\nabla_x \log p_t(x_t)</annotation></semantics></math>.
-This is the gradient of the log-probability of the data at step
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>.</p>
+<span class="math inline">\(\nabla_x \log p_t(x_t)\)</span>. This is the
+gradient of the log-probability of the data at step <span
+class="math inline">\(t\)</span>.</p>
 <blockquote>
 <p><strong>🧠 Intuitive Analogy: Hiking in the Fog</strong></p>
-<p>Imagine you’re on a mountain
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>t</mi></msub><annotation encoding="application/x-tex">p_t</annotation></semantics></math>),
-but it’s completely foggy. You want to get to the <em>peak</em> (the
-most probable image). The score function is like a magic compass that,
-no matter where you are, <em>always</em> points uphill. By taking a
-small step in the direction of the score, you move to a “more probable”
-(less noisy) version of the image.</p>
+<p>Imagine you’re on a mountain (<span
+class="math inline">\(p_t\)</span>), but it’s completely foggy. You want
+to get to the <em>peak</em> (the most probable image). The score
+function is like a magic compass that, no matter where you are,
+<em>always</em> points uphill. By taking a small step in the direction
+of the score, you move to a “more probable” (less noisy) version of the
+image.</p>
 </blockquote>
 <h4 id="training-and-sampling">Training and Sampling</h4>
 <p>It turns out that this “score” is mathematically related to the
-<em>noise</em>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϵ</mi><annotation encoding="application/x-tex">\epsilon</annotation></semantics></math>
-we added in the first place. So, we can train a (typically U-Net) model,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ϵ</mi><mi>θ</mi></msub><annotation encoding="application/x-tex">\epsilon_\theta</annotation></semantics></math>,
-to do one simple thing:</p>
+<em>noise</em> <span class="math inline">\(\epsilon\)</span> we added in
+the first place. So, we can train a (typically U-Net) model, <span
+class="math inline">\(\epsilon_\theta\)</span>, to do one simple
+thing:</p>
 <p><strong>Training:</strong></p>
 <ol type="1">
-<li>Pick a real image
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mn>0</mn></msub><annotation encoding="application/x-tex">x_0</annotation></semantics></math>
-from our dataset.</li>
-<li>Pick a random timestep
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>.</li>
-<li>Pick a random blob of noise
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϵ</mi><annotation encoding="application/x-tex">\epsilon</annotation></semantics></math>.</li>
-<li>Use our formula to instantly create the noisy image
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>t</mi></msub><annotation encoding="application/x-tex">x_t</annotation></semantics></math>.</li>
-<li>Feed
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>t</mi></msub><annotation encoding="application/x-tex">x_t</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
-to our model
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ϵ</mi><mi>θ</mi></msub><annotation encoding="application/x-tex">\epsilon_\theta</annotation></semantics></math>.</li>
-<li>Train the model to predict the <em>original noise</em>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϵ</mi><annotation encoding="application/x-tex">\epsilon</annotation></semantics></math>
-that was added.</li>
+<li>Pick a real image <span class="math inline">\(x_0\)</span> from our
+dataset.</li>
+<li>Pick a random timestep <span class="math inline">\(t\)</span>.</li>
+<li>Pick a random blob of noise <span
+class="math inline">\(\epsilon\)</span>.</li>
+<li>Use our formula to instantly create the noisy image <span
+class="math inline">\(x_t\)</span>.</li>
+<li>Feed <span class="math inline">\(x_t\)</span> and <span
+class="math inline">\(t\)</span> to our model <span
+class="math inline">\(\epsilon_\theta\)</span>.</li>
+<li>Train the model to predict the <em>original noise</em> <span
+class="math inline">\(\epsilon\)</span> that was added.</li>
 </ol>
 <p>The training objective (the “loss”) is just:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ℒ</mi><mo>=</mo><msub><mi>𝔼</mi><mrow><msub><mi>x</mi><mn>0</mn></msub><mo>,</mo><mi>ϵ</mi><mo>,</mo><mi>t</mi></mrow></msub><mrow><mo stretchy="true" form="prefix">[</mo><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mi>ϵ</mi><mo>−</mo><msub><mi>ϵ</mi><mi>θ</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>t</mi></msub><mo>,</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">|</mo><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">\mathcal{L} = \mathbb{E}_{x_0, \epsilon, t} \left[ ||\epsilon - \epsilon_\theta(x_t, t)||^2 \right]</annotation></semantics></math></p>
+<p><span class="math display">\[\mathcal{L} = \mathbb{E}_{x_0, \epsilon,
+t} \left[ ||\epsilon - \epsilon_\theta(x_t, t)||^2 \right]\]</span></p>
 <p>In plain English: “Hey model, here’s a noisy image. Tell me the
 <em>exact noise</em> I added to create it. If you’re wrong, adjust your
 weights until you’re right.”</p>
@@ -327,29 +339,25 @@ for t in reversed(range(1, T)):
 
 # 5. Our final image is the fully denoised x_0
 return x_t</code></pre>
-<p>That’s it. We start with pure static
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>T</mi></msub><annotation encoding="application/x-tex">x_T</annotation></semantics></math>,
-ask our model “what noise is in here?”, subtract <em>a part</em> of that
-predicted noise, and repeat. The model, guided by the “score,”
-reverse-engineers the process, pulling a coherent image out of the
-chaos.</p>
+<p>That’s it. We start with pure static <span
+class="math inline">\(x_T\)</span>, ask our model “what noise is in
+here?”, subtract <em>a part</em> of that predicted noise, and repeat.
+The model, guided by the “score,” reverse-engineers the process, pulling
+a coherent image out of the chaos.</p>
 <p>Now… what happens when we try to do this with <em>two</em> models at
 once?</p>
 <hr />
 <h3 id="part-2-the-papers-core-innovation">🔬 Part 2: The Paper’s Core
 Innovation</h3>
 <p>This paper starts by asking a simple question: How do we
-<em>mathematically define</em> the composition
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>p</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{p}</annotation></semantics></math>
-of two distributions,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>1</mn></msub><annotation encoding="application/x-tex">p_1</annotation></semantics></math>
-and $ p_2 $?</p>
-<p>For example,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mn>1</mn></msub><mo>=</mo><mtext mathvariant="normal">&quot;dog photos&quot;</mtext></mrow><annotation encoding="application/x-tex">p_1 = \text{&quot;dog photos&quot;}</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mn>2</mn></msub><mo>=</mo><mtext mathvariant="normal">&quot;oil paintings&quot;</mtext></mrow><annotation encoding="application/x-tex">p_2 = \text{&quot;oil paintings&quot;}</annotation></semantics></math>.
-We want
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>p</mi><mo accent="true">̂</mo></mover><mo>=</mo><mtext mathvariant="normal">&quot;oil paintings of dogs&quot;</mtext></mrow><annotation encoding="application/x-tex">\hat{p} = \text{&quot;oil paintings of dogs&quot;}</annotation></semantics></math>.</p>
+<em>mathematically define</em> the composition <span
+class="math inline">\(\hat{p}\)</span> of two distributions, <span
+class="math inline">\(p_1\)</span> and $ p_2 $?</p>
+<p>For example, <span class="math inline">\(p_1 = \text{&quot;dog
+photos&quot;}\)</span> and <span class="math inline">\(p_2 =
+\text{&quot;oil paintings&quot;}\)</span>. We want <span
+class="math inline">\(\hat{p} = \text{&quot;oil paintings of
+dogs&quot;}\)</span>.</p>
 <p>This paper’s core innovation is to show that the <em>old definitions
 are wrong</em> and to propose a new, far more powerful one.</p>
 <h4 id="problem-1-why-the-simple-product-fails">Problem 1: Why “The
@@ -357,29 +365,28 @@ Simple Product” Fails</h4>
 <p>The most obvious definition, which people have used for years, is the
 <strong>Simple Product</strong>:</p>
 <blockquote>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>p</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>∝</mo><msub><mi>p</mi><mn>1</mn></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><msub><mi>p</mi><mn>2</mn></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\hat{p}(x) \propto p_1(x) p_2(x)</annotation></semantics></math></p>
+<p><span class="math inline">\(\hat{p}(x) \propto p_1(x)
+p_2(x)\)</span></p>
 </blockquote>
-<p>This says our composed image
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>p</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\hat{p}(x)</annotation></semantics></math>
-should have high probability under <em>both</em>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>1</mn></msub><annotation encoding="application/x-tex">p_1</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>2</mn></msub><annotation encoding="application/x-tex">p_2</annotation></semantics></math>.</p>
+<p>This says our composed image <span
+class="math inline">\(\hat{p}(x)\)</span> should have high probability
+under <em>both</em> <span class="math inline">\(p_1\)</span> and <span
+class="math inline">\(p_2\)</span>.</p>
 <p>[cite_start]<strong>The fatal flaw:</strong> This can <em>never</em>
 create OOD samples[cite: 157].</p>
 <p>Let’s think about it.</p>
 <ul>
-<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mn>1</mn></msub><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">&quot;oil painting of your dog&quot;</mtext><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">p_1(\text{&quot;oil painting of your dog&quot;}) = 0</annotation></semantics></math>.
-Why? The “dog” model has <em>never</em> seen an oil painting. It thinks
-they are impossible (zero probability).</li>
-<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mn>2</mn></msub><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">&quot;oil painting of your dog&quot;</mtext><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">p_2(\text{&quot;oil painting of your dog&quot;}) = 0</annotation></semantics></math>.
-Why? The “oil painting” model has <em>never</em> seen <em>your dog</em>.
-It thinks your dog is impossible.</li>
+<li><span class="math inline">\(p_1(\text{&quot;oil painting of your
+dog&quot;}) = 0\)</span>. Why? The “dog” model has <em>never</em> seen
+an oil painting. It thinks they are impossible (zero probability).</li>
+<li><span class="math inline">\(p_2(\text{&quot;oil painting of your
+dog&quot;}) = 0\)</span>. Why? The “oil painting” model has
+<em>never</em> seen <em>your dog</em>. It thinks your dog is
+impossible.</li>
 </ul>
-<p>So,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>p</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>∝</mo><mn>0</mn><mo>×</mo><mn>0</mn><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\hat{p}(x) \propto 0 \times 0 = 0</annotation></semantics></math>.
-The “simple product” composition is 0 for <em>every</em> OOD image. It
-<em>cannot</em> create the very thing we want.</p>
+<p>So, <span class="math inline">\(\hat{p}(x) \propto 0 \times 0 =
+0\)</span>. The “simple product” composition is 0 for <em>every</em> OOD
+image. It <em>cannot</em> create the very thing we want.</p>
 <blockquote>
 <p><strong>🧠 Intuitive Analogy: The Failed Light Filters</strong></p>
 <p>This is like trying to create “purple” light by stacking a “pure red”
@@ -395,16 +402,15 @@ Bayes Composition” Fails</h4>
 Composition</strong>[cite: 161]. This is the theory behind many modern
 techniques like Classifier-Free Guidance (CFG). It’s defined as:</p>
 <blockquote>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>p</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>:=</mo><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="prefix">|</mo><msub><mi>c</mi><mn>1</mn></msub><mo>,</mo><msub><mi>c</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\hat{p}(x) := p(x | c_1, c_2)</annotation></semantics></math></p>
+<p><span class="math inline">\(\hat{p}(x) := p(x | c_1,
+c_2)\)</span></p>
 </blockquote>
-<p>Where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>c</mi><mn>1</mn></msub><annotation encoding="application/x-tex">c_1</annotation></semantics></math>
-is the “dog” concept and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>c</mi><mn>2</mn></msub><annotation encoding="application/x-tex">c_2</annotation></semantics></math>
-is the “oil painting” concept. Using Bayes’ rule, this is often written
-as:</p>
+<p>Where <span class="math inline">\(c_1\)</span> is the “dog” concept
+and <span class="math inline">\(c_2\)</span> is the “oil painting”
+concept. Using Bayes’ rule, this is often written as:</p>
 <blockquote>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>p</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>∝</mo><mfrac><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="prefix">|</mo><msub><mi>c</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="prefix">|</mo><msub><mi>c</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">\hat{p}(x) \propto \frac{p(x|c_1) p(x|c_2)}{p(x)}</annotation></semantics></math></p>
+<p><span class="math inline">\(\hat{p}(x) \propto \frac{p(x|c_1)
+p(x|c_2)}{p(x)}\)</span></p>
 </blockquote>
 <p>This <em>seems</em> much smarter. It says, “Let’s combine the ‘dog’
 model and the ‘painting’ model, but we’ll <em>divide by</em> the
@@ -412,28 +418,24 @@ model and the ‘painting’ model, but we’ll <em>divide by</em> the
 double-counting.”</p>
 <p>[cite_start]<strong>The fatal flaw:</strong> This <em>also</em> fails
 for true OOD [cite: 175-177].</p>
-<p>The problem is the $ p(x) $ (or
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>u</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p_u(x)</annotation></semantics></math>
-in the paper). This is the distribution of <em>all</em> images the
-models were trained on. If this “unconditional” model <em>never saw</em>
-an image with both “your dog’s features” and “oil painting features” in
-the same place, then
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">&quot;oil painting of your dog&quot;</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(\text{&quot;oil painting of your dog&quot;})</annotation></semantics></math>
-is, once again,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math>.</p>
-<p>[cite_start]The very definition
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="prefix">|</mo><msub><mi>c</mi><mn>1</mn></msub><mo>,</mo><msub><mi>c</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(x|c_1, c_2)</annotation></semantics></math>
-is ill-defined if the event
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>c</mi><mn>1</mn></msub><mo>,</mo><msub><mi>c</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(c_1, c_2)</annotation></semantics></math>
-was never in the training set [cite: 177-179].</p>
+<p>The problem is the $ p(x) $ (or <span
+class="math inline">\(p_u(x)\)</span> in the paper). This is the
+distribution of <em>all</em> images the models were trained on. If this
+“unconditional” model <em>never saw</em> an image with both “your dog’s
+features” and “oil painting features” in the same place, then <span
+class="math inline">\(p(\text{&quot;oil painting of your
+dog&quot;})\)</span> is, once again, <span
+class="math inline">\(0\)</span>.</p>
+<p>[cite_start]The very definition <span class="math inline">\(p(x|c_1,
+c_2)\)</span> is ill-defined if the event <span
+class="math inline">\((c_1, c_2)\)</span> was never in the training set
+[cite: 177-179].</p>
 <p>The authors <em>prove</em> this experimentally in Figure 3. They
 train models to generate a <em>single</em> object in a specific location
-(e.g.,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>1</mn></msub><annotation encoding="application/x-tex">p_1</annotation></semantics></math>
-= “object at top-left,”
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>2</mn></msub><annotation encoding="application/x-tex">p_2</annotation></semantics></math>
-= “object at bottom-right”). They then try to compose them using the
-Bayes composition (Figure 3b).</p>
+(e.g., <span class="math inline">\(p_1\)</span> = “object at top-left,”
+<span class="math inline">\(p_2\)</span> = “object at bottom-right”).
+They then try to compose them using the Bayes composition (Figure
+3b).</p>
 <p>[cite_start]The results are a disaster[cite: 120]. When they try to
 compose two models, they often get a blurry single object, or <em>no
 objects at all</em>. [cite_start]As they try to compose more and more
@@ -446,93 +448,73 @@ Paper’s Big Idea: Projective Composition (Definition 4.1)</h4>
 think about <em>features</em>.”</p>
 <ol type="1">
 <li>[cite_start]<strong>Define it in 1 sentence:</strong> A composition
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>p</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{p}</annotation></semantics></math>
-is “correct” if it <em>preserves the features</em> we care about from
-each of its parents[cite: 197].</li>
+<span class="math inline">\(\hat{p}\)</span> is “correct” if it
+<em>preserves the features</em> we care about from each of its
+parents[cite: 197].</li>
 <li>[cite_start]<strong>Give background (The “Projection”):</strong> The
-authors introduce a new concept: a “projection function”
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="normal">Π</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\Pi_i</annotation></semantics></math>
-(that’s Pi, the Greek letter)[cite: 200]. You can think of this as a
-<em>feature extractor</em>.
+authors introduce a new concept: a “projection function” <span
+class="math inline">\(\Pi_i\)</span> (that’s Pi, the Greek letter)[cite:
+200]. You can think of this as a <em>feature extractor</em>.
 <ul>
-<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="normal">Π</mi><mtext mathvariant="normal">style</mtext></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Pi_{\text{style}}(x)</annotation></semantics></math>
-could be a function that looks at an image
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+<li><span class="math inline">\(\Pi_{\text{style}}(x)\)</span> could be
+a function that looks at an image <span class="math inline">\(x\)</span>
 and <em>only</em> outputs its “style” (e.g., a vector representing “oil
 painting”).</li>
-<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="normal">Π</mi><mtext mathvariant="normal">content</mtext></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Pi_{\text{content}}(x)</annotation></semantics></math>
-could be a function that <em>only</em> outputs its “content” (e.g., a
-vector representing “your dog”).</li>
+<li><span class="math inline">\(\Pi_{\text{content}}(x)\)</span> could
+be a function that <em>only</em> outputs its “content” (e.g., a vector
+representing “your dog”).</li>
 </ul></li>
 <li><strong>Explain why the authors use it:</strong> This definition
 <em>detaches</em> the composed image from the parent distributions. The
-new image
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>p</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{p}</annotation></semantics></math>
-doesn’t have to be probable under
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>1</mn></msub><annotation encoding="application/x-tex">p_1</annotation></semantics></math>
-or
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>2</mn></msub><annotation encoding="application/x-tex">p_2</annotation></semantics></math>.
-It only has to <em>look like</em>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>1</mn></msub><annotation encoding="application/x-tex">p_1</annotation></semantics></math>
-when viewed through the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="normal">Π</mi><mn>1</mn></msub><annotation encoding="application/x-tex">\Pi_1</annotation></semantics></math>
-“lens,” and <em>look like</em>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>2</mn></msub><annotation encoding="application/x-tex">p_2</annotation></semantics></math>
-when viewed through the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="normal">Π</mi><mn>2</mn></msub><annotation encoding="application/x-tex">\Pi_2</annotation></semantics></math>
-“lens.”</li>
-<li><strong>Show the exact equation:</strong> A distribution
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>p</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{p}</annotation></semantics></math>
-is a <strong>Projective Composition</strong> of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\{p_i\}</annotation></semantics></math>
-with respect to projections
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><msub><mi mathvariant="normal">Π</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\{\Pi_i\}</annotation></semantics></math>
-if:
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="normal">Π</mi><mi>i</mi></msub><mi>#</mi><mover><mi>p</mi><mo accent="true">̂</mo></mover><mo>=</mo><msub><mi mathvariant="normal">Π</mi><mi>i</mi></msub><mi>#</mi><msub><mi>p</mi><mi>i</mi></msub><mspace width="1.0em"></mspace><mrow><mtext mathvariant="normal">for all </mtext><mspace width="0.333em"></mspace></mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">\Pi_i \# \hat{p} = \Pi_i \# p_i \quad \text{for all } i</annotation></semantics></math>
+new image <span class="math inline">\(\hat{p}\)</span> doesn’t have to
+be probable under <span class="math inline">\(p_1\)</span> or <span
+class="math inline">\(p_2\)</span>. It only has to <em>look like</em>
+<span class="math inline">\(p_1\)</span> when viewed through the <span
+class="math inline">\(\Pi_1\)</span> “lens,” and <em>look like</em>
+<span class="math inline">\(p_2\)</span> when viewed through the <span
+class="math inline">\(\Pi_2\)</span> “lens.”</li>
+<li><strong>Show the exact equation:</strong> A distribution <span
+class="math inline">\(\hat{p}\)</span> is a <strong>Projective
+Composition</strong> of <span class="math inline">\(\{p_i\}\)</span>
+with respect to projections <span
+class="math inline">\(\{\Pi_i\}\)</span> if: <span
+class="math display">\[\Pi_i \# \hat{p} = \Pi_i \# p_i \quad \text{for
+all } i\]</span>
 <ul>
-<li>That
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>#</mi><annotation encoding="application/x-tex">\#</annotation></semantics></math>
-symbol is called the <strong>pushforward</strong>. Don’t be scared by
-it.</li>
-<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi mathvariant="normal">Π</mi><mi>i</mi></msub><mi>#</mi><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\Pi_i \# p_i)</annotation></semantics></math>
-just means “the distribution of features you get if you run all images
-from
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>i</mi></msub><annotation encoding="application/x-tex">p_i</annotation></semantics></math>
-through the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="normal">Π</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\Pi_i</annotation></semantics></math>
-extractor.”</li>
+<li>That <span class="math inline">\(\#\)</span> symbol is called the
+<strong>pushforward</strong>. Don’t be scared by it.</li>
+<li><span class="math inline">\((\Pi_i \# p_i)\)</span> just means “the
+distribution of features you get if you run all images from <span
+class="math inline">\(p_i\)</span> through the <span
+class="math inline">\(\Pi_i\)</span> extractor.”</li>
 <li>In English, this equation says: “If I take my new ‘oil paintings of
-dogs’
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>p</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{p}</annotation></semantics></math>)
-and put them <em>all</em> through the ‘style extractor’
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="normal">Π</mi><mtext mathvariant="normal">style</mtext></msub><annotation encoding="application/x-tex">\Pi_{\text{style}}</annotation></semantics></math>),
-the resulting collection of styles should look <em>exactly</em> like the
-collection of styles from my original ‘oil paintings’ model
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mtext mathvariant="normal">style</mtext></msub><annotation encoding="application/x-tex">p_{\text{style}}</annotation></semantics></math>).
-Simultaneously, if I put them through the ‘content extractor’
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="normal">Π</mi><mtext mathvariant="normal">content</mtext></msub><annotation encoding="application/x-tex">\Pi_{\text{content}}</annotation></semantics></math>),
-the resulting content should look just like my ‘dog’ model
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mtext mathvariant="normal">content</mtext></msub><annotation encoding="application/x-tex">p_{\text{content}}</annotation></semantics></math>).”</li>
+dogs’ (<span class="math inline">\(\hat{p}\)</span>) and put them
+<em>all</em> through the ‘style extractor’ (<span
+class="math inline">\(\Pi_{\text{style}}\)</span>), the resulting
+collection of styles should look <em>exactly</em> like the collection of
+styles from my original ‘oil paintings’ model (<span
+class="math inline">\(p_{\text{style}}\)</span>). Simultaneously, if I
+put them through the ‘content extractor’ (<span
+class="math inline">\(\Pi_{\text{content}}\)</span>), the resulting
+content should look just like my ‘dog’ model (<span
+class="math inline">\(p_{\text{content}}\)</span>).”</li>
 </ul></li>
-<li><strong>Diagram (Based on Figure 4):</strong> Imagine
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>1</mn></msub><annotation encoding="application/x-tex">p_1</annotation></semantics></math>
-(oil paintings) and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>2</mn></msub><annotation encoding="application/x-tex">p_2</annotation></semantics></math>
-(your dog) are two weirdly-shaped blobs. The new composition
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>p</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{p}</annotation></semantics></math>
+<li><strong>Diagram (Based on Figure 4):</strong> Imagine <span
+class="math inline">\(p_1\)</span> (oil paintings) and <span
+class="math inline">\(p_2\)</span> (your dog) are two weirdly-shaped
+blobs. The new composition <span class="math inline">\(\hat{p}\)</span>
 is a <em>new blob</em> that overlaps them.
 <ul>
-<li>[cite_start]If we shine a “style” spotlight
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="normal">Π</mi><mn>1</mn></msub><annotation encoding="application/x-tex">\Pi_1</annotation></semantics></math>)
-on $ \hat{p} $, its shadow perfectly matches $ p_1 $’s shadow[cite:
-193].</li>
-<li>[cite_start]If we shine a “content” spotlight
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="normal">Π</mi><mn>2</mn></msub><annotation encoding="application/x-tex">\Pi_2</annotation></semantics></math>)
-on $ \hat{p} $, its shadow perfectly matches $ p_2 $’s shadow[cite:
-193]. This definition <em>works</em>. [cite_start]It formally allows for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>p</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{p}</annotation></semantics></math>
-to be a completely new OOD distribution[cite: 228], as long as its
-“projections” (shadows) are correct.</li>
+<li>[cite_start]If we shine a “style” spotlight (<span
+class="math inline">\(\Pi_1\)</span>) on $ \hat{p} $, its shadow
+perfectly matches $ p_1 $’s shadow[cite: 193].</li>
+<li>[cite_start]If we shine a “content” spotlight (<span
+class="math inline">\(\Pi_2\)</span>) on $ \hat{p} $, its shadow
+perfectly matches $ p_2 $’s shadow[cite: 193]. This definition
+<em>works</em>. [cite_start]It formally allows for <span
+class="math inline">\(\hat{p}\)</span> to be a completely new OOD
+distribution[cite: 228], as long as its “projections” (shadows) are
+correct.</li>
 </ul></li>
 </ol>
 <p>This is a <em>revolutionary</em> new definition. But how do we
@@ -545,71 +527,60 @@ in Part 5) use in practice.</p>
 <p>[cite_start]<strong>Definition 5.1: The Composition Operator $
 \mathcal{C} $</strong> [cite: 248] The score of the composed
 distribution is defined as:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>∇</mi><mi>x</mi></msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>𝒞</mi><mo stretchy="false" form="prefix">[</mo><mover><mi>p</mi><mo accent="true">→</mo></mover><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>∇</mi><mi>x</mi></msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><munder><mo>∑</mo><mi>i</mi></munder><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>∇</mi><mi>x</mi></msub><mi mathvariant="normal">log</mi><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><msub><mi>∇</mi><mi>x</mi></msub><mi mathvariant="normal">log</mi><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\nabla_x \log \mathcal{C}[\vec{p}](x) = \nabla_x \log p_b(x) + \sum_i \left( \nabla_x \log p_i(x) - \nabla_x \log p_b(x) \right)</annotation></semantics></math></p>
-<p>This is the key.
-[cite_start]<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>b</mi></msub><annotation encoding="application/x-tex">p_b</annotation></semantics></math>
+<p><span class="math display">\[\nabla_x \log \mathcal{C}[\vec{p}](x) =
+\nabla_x \log p_b(x) + \sum_i \left( \nabla_x \log p_i(x) - \nabla_x
+\log p_b(x) \right)\]</span></p>
+<p>This is the key. [cite_start]<span class="math inline">\(p_b\)</span>
 is a “background” distribution[cite: 245]. We take the score of each
 model $ p_i $, <em>subtract</em> the background score (to get just the
-“new stuff”
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>i</mi></msub><annotation encoding="application/x-tex">p_i</annotation></semantics></math>
-adds), and then add all those “new stuffs” back onto the background.</p>
+“new stuff” <span class="math inline">\(p_i\)</span> adds), and then add
+all those “new stuffs” back onto the background.</p>
 <p>[cite_start]<strong>The “When”: Definition 5.2: Factorized
-Conditionals</strong> [cite: 264] This operator
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝒞</mi><annotation encoding="application/x-tex">\mathcal{C}</annotation></semantics></math>
-doesn’t <em>always</em> work. It works <em>if</em> a special condition
-is met. The distributions
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\{p_i\}</annotation></semantics></math>
-must be <strong>Factorized Conditionals</strong>.</p>
-<p>This means that each distribution
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>i</mi></msub><annotation encoding="application/x-tex">p_i</annotation></semantics></math>
-is <em>only</em> “active” on a <em>disjoint</em> set of coordinates (a
-“mask”) $ M_i $, and is identical to the background
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>b</mi></msub><annotation encoding="application/x-tex">p_b</annotation></semantics></math>
+Conditionals</strong> [cite: 264] This operator <span
+class="math inline">\(\mathcal{C}\)</span> doesn’t <em>always</em> work.
+It works <em>if</em> a special condition is met. The distributions <span
+class="math inline">\(\{p_i\}\)</span> must be <strong>Factorized
+Conditionals</strong>.</p>
+<p>This means that each distribution <span
+class="math inline">\(p_i\)</span> is <em>only</em> “active” on a
+<em>disjoint</em> set of coordinates (a “mask”) $ M_i $, and is
+identical to the background <span class="math inline">\(p_b\)</span>
 everywhere else.</p>
 <blockquote>
 <p><strong>🧠 Intuitive Analogy: The Orchestra (Again)</strong></p>
 <ul>
-<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>b</mi></msub><annotation encoding="application/x-tex">p_b</annotation></semantics></math>
-= “A silent recording studio.”</li>
-<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>1</mn></msub><annotation encoding="application/x-tex">p_1</annotation></semantics></math>
-= “A model that <em>only</em> generates violin sounds in channels 1-8
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>M</mi><mn>1</mn></msub><annotation encoding="application/x-tex">M_1</annotation></semantics></math>).”
-Everywhere else, it’s silent.</li>
-<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>2</mn></msub><annotation encoding="application/x-tex">p_2</annotation></semantics></math>
-= “A model that <em>only</em> generates drum sounds in channels 9-16
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>M</mi><mn>2</mn></msub><annotation encoding="application/x-tex">M_2</annotation></semantics></math>).”
-Everywhere else, it’s silent.</li>
+<li><span class="math inline">\(p_b\)</span> = “A silent recording
+studio.”</li>
+<li><span class="math inline">\(p_1\)</span> = “A model that
+<em>only</em> generates violin sounds in channels 1-8 (<span
+class="math inline">\(M_1\)</span>).” Everywhere else, it’s silent.</li>
+<li><span class="math inline">\(p_2\)</span> = “A model that
+<em>only</em> generates drum sounds in channels 9-16 (<span
+class="math inline">\(M_2\)</span>).” Everywhere else, it’s silent.</li>
 </ul>
-<p>Because the masks
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>M</mi><mn>1</mn></msub><annotation encoding="application/x-tex">M_1</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>M</mi><mn>2</mn></msub><annotation encoding="application/x-tex">M_2</annotation></semantics></math>
-are <strong>disjoint</strong>, composing them is easy. The composition
-operator
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝒞</mi><annotation encoding="application/x-tex">\mathcal{C}</annotation></semantics></math>
-just “pastes” the violin part and the drum part onto the silent
-background.</p>
+<p>Because the masks <span class="math inline">\(M_1\)</span> and <span
+class="math inline">\(M_2\)</span> are <strong>disjoint</strong>,
+composing them is easy. The composition operator <span
+class="math inline">\(\mathcal{C}\)</span> just “pastes” the violin part
+and the drum part onto the silent background.</p>
 </blockquote>
 <p><strong>The Main Event: Theorem 5.3</strong> [cite_start]This is the
 paper’s first grand slam[cite: 275].</p>
 <p><strong>Theorem 5.3 says:</strong> <em>If</em> a set of distributions
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>p</mi><mi>b</mi></msub><mo>,</mo><msub><mi>p</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(p_b, p_1, \dots)</annotation></semantics></math>
-satisfies the <strong>Factorized Conditionals</strong> property
-(Definition 5.2), <em>then</em> sampling with the <strong>Composition
-Operator</strong> (Definition 5.1) <em>provably achieves</em> a
-<strong>Projective Composition</strong> (Definition 4.1).</p>
+<span class="math inline">\((p_b, p_1, \dots)\)</span> satisfies the
+<strong>Factorized Conditionals</strong> property (Definition 5.2),
+<em>then</em> sampling with the <strong>Composition Operator</strong>
+(Definition 5.1) <em>provably achieves</em> a <strong>Projective
+Composition</strong> (Definition 4.1).</p>
 <p>This is the link! [cite_start]It explains <em>why</em> the CLEVR
 block-stacking experiment (Figure 3a) <em>worked</em>[cite: 116, 316].
-Each model
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>i</mi></msub><annotation encoding="application/x-tex">p_i</annotation></semantics></math>
-was trained to put one block in <em>one location</em>
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>M</mi><mi>i</mi></msub><annotation encoding="application/x-tex">M_i</annotation></semantics></math>).
-[cite_start]Since all the locations were disjoint, the “Factorized
-Conditionals” property held, and the composition <em>worked
-perfectly</em>[cite: 321].</p>
+Each model <span class="math inline">\(p_i\)</span> was trained to put
+one block in <em>one location</em> (<span
+class="math inline">\(M_i\)</span>). [cite_start]Since all the locations
+were disjoint, the “Factorized Conditionals” property held, and the
+composition <em>worked perfectly</em>[cite: 321].</p>
 <p>It also explains why Figure 3b <em>failed</em>. [cite_start]By
-choosing the wrong background
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>b</mi></msub><annotation encoding="application/x-tex">p_b</annotation></semantics></math>
+choosing the wrong background <span class="math inline">\(p_b\)</span>
 (the “unconditional” model), the Factorized Conditionals property was
 violated, and the whole thing fell apart[cite: 119, 301].</p>
 <p>This is a huge insight. But it has one tiny problem… “style” and
@@ -626,63 +597,56 @@ factorization doesn’t happen in <em>pixel space</em>, but in some hidden
 <p>We all intuitively feel that “style” and “content” are two different,
 “disentangled” properties. This means there <em>might</em> exist some
 magic mathematical function, a “feature extractor” $ \mathcal{A} $, that
-can transform an image
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
-into a new representation
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mo>=</mo><mi>𝒜</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">z = \mathcal{A}(x)</annotation></semantics></math>.</p>
-<p>In this new $ z <span class="math inline">$space, "style" might be
-controlled *only* by coordinates$</span> z_1 \dots z_{50} $ (<span
-class="math inline">$M\_{\\text{style}}$</span>) and “content”
-<em>only</em> by
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>z</mi><mn>51</mn></msub><mi>…</mi><msub><mi>z</mi><mn>100</mn></msub></mrow><annotation encoding="application/x-tex">z_{51} \dots z_{100}</annotation></semantics></math>
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>M</mi><mtext mathvariant="normal">content</mtext></msub><annotation encoding="application/x-tex">M_{\text{content}}</annotation></semantics></math>).</p>
-<p>[cite_start]If such an
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝒜</mi><annotation encoding="application/x-tex">\mathcal{A}</annotation></semantics></math>
-exists (the paper calls it a
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>C</mi><mn>1</mn></msup><annotation encoding="application/x-tex">C^1</annotation></semantics></math>
-diffeomorphism, a fancy name for an invertible, smooth function [cite:
-339]), then our models <em>would</em> satisfy “Factorized Conditionals”
-in that <em>feature space</em>.</p>
-<p>But we don’t know
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝒜</mi><annotation encoding="application/x-tex">\mathcal{A}</annotation></semantics></math>.
-We can’t compute
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>.
-So who cares?</p>
+can transform an image <span class="math inline">\(x\)</span> into a new
+representation <span class="math inline">\(z =
+\mathcal{A}(x)\)</span>.</p>
+<p>In this new $ z <span class="math inline">\(space, &quot;style&quot;
+might be controlled *only* by coordinates\)</span> z_1 \dots z_{50} $
+(<span class="math inline">\(M\_{\\text{style}}\)</span>) and “content”
+<em>only</em> by <span class="math inline">\(z_{51} \dots
+z_{100}\)</span> (<span
+class="math inline">\(M_{\text{content}}\)</span>).</p>
+<p>[cite_start]If such an <span
+class="math inline">\(\mathcal{A}\)</span> exists (the paper calls it a
+<span class="math inline">\(C^1\)</span> diffeomorphism, a fancy name
+for an invertible, smooth function [cite: 339]), then our models
+<em>would</em> satisfy “Factorized Conditionals” in that <em>feature
+space</em>.</p>
+<p>But we don’t know <span class="math inline">\(\mathcal{A}\)</span>.
+We can’t compute <span class="math inline">\(z\)</span>. So who
+cares?</p>
 <p>This is where <strong>Lemma 6.2</strong> comes in.</p>
 <blockquote>
 <p>[cite_start]<strong>Lemma 6.2: Reparameterization
 Equivariance</strong> [cite: 364]</p>
-<p>The paper proves that the Composition Operator
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝒞</mi><annotation encoding="application/x-tex">\mathcal{C}</annotation></semantics></math>
-has a magic property: it <em>commutes</em> with <em>any</em> such
-feature extractor
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝒜</mi><annotation encoding="application/x-tex">\mathcal{A}</annotation></semantics></math>.</p>
-<p>In math:
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒞</mi><mo stretchy="false" form="prefix">[</mo><mi>𝒜</mi><mo stretchy="false" form="prefix">(</mo><mover><mi>p</mi><mo accent="true">→</mo></mover><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>𝒜</mi><mo stretchy="false" form="prefix">(</mo><mi>𝒞</mi><mo stretchy="false" form="prefix">[</mo><mover><mi>p</mi><mo accent="true">→</mo></mover><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathcal{C}[\mathcal{A}(\vec{p})] = \mathcal{A}(\mathcal{C}[\vec{p}])</annotation></semantics></math></p>
+<p>The paper proves that the Composition Operator <span
+class="math inline">\(\mathcal{C}\)</span> has a magic property: it
+<em>commutes</em> with <em>any</em> such feature extractor <span
+class="math inline">\(\mathcal{A}\)</span>.</p>
+<p>In math: <span
+class="math display">\[\mathcal{C}[\mathcal{A}(\vec{p})] =
+\mathcal{A}(\mathcal{C}[\vec{p}])\]</span></p>
 <p><strong>In English:</strong></p>
 <ul>
 <li>LHS: “First transform all your models into the magic feature space
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒜</mi><mo stretchy="false" form="prefix">(</mo><mover><mi>p</mi><mo accent="true">→</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathcal{A}(\vec{p})</annotation></semantics></math>),
-and <em>then</em> compose them
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒞</mi><mo stretchy="false" form="prefix">[</mo><mi>…</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\mathcal{C}[\dots]</annotation></semantics></math>).”</li>
+(<span class="math inline">\(\mathcal{A}(\vec{p})\)</span>), and
+<em>then</em> compose them (<span
+class="math inline">\(\mathcal{C}[\dots]\)</span>).”</li>
 <li>RHS: “First compose all your models in the simple, dumb <em>pixel
-space</em>
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒞</mi><mo stretchy="false" form="prefix">[</mo><mover><mi>p</mi><mo accent="true">→</mo></mover><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\mathcal{C}[\vec{p}]</annotation></semantics></math>),
+space</em> (<span class="math inline">\(\mathcal{C}[\vec{p}]\)</span>),
 and <em>then</em> transform the final result into the magic feature
-space
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒜</mi><mo stretchy="false" form="prefix">(</mo><mi>…</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathcal{A}(\dots)</annotation></semantics></math>).”</li>
+space (<span class="math inline">\(\mathcal{A}(\dots)\)</span>).”</li>
 </ul>
 <p>The lemma says <strong>these two actions are identical.</strong></p>
 </blockquote>
 <p><strong>This is the most important result in the paper.</strong></p>
 <p>Why? Because it leads directly to <strong>Theorem 6.1</strong>: If a
-magic “disentangling” feature space
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝒜</mi><annotation encoding="application/x-tex">\mathcal{A}</annotation></semantics></math>
-<em>exists</em> (even if we don’t know what it is), then just applying
-the simple <strong>Composition Operator
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝒞</mi><annotation encoding="application/x-tex">\mathcal{C}</annotation></semantics></math>
-in pixel-space</strong> is <em>already</em> doing the “correct”
-composition.</p>
+magic “disentangling” feature space <span
+class="math inline">\(\mathcal{A}\)</span> <em>exists</em> (even if we
+don’t know what it is), then just applying the simple
+<strong>Composition Operator <span
+class="math inline">\(\mathcal{C}\)</span> in pixel-space</strong> is
+<em>already</em> doing the “correct” composition.</p>
 <p>[cite_start]We get the power of the abstract, disentangled feature
 space <em>for free</em>, without ever leaving pixel space[cite:
 361].</p>
@@ -701,57 +665,57 @@ Operator (Def 5.1) work so well.</p>
 <p>[cite_start]<strong>BOX: Let’s compute the proof sketch for Theorem
 5.3</strong> [cite: 289]</p>
 <ol type="1">
-<li><p><strong>Start with the operator:</strong>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒞</mi><mo stretchy="false" form="prefix">[</mo><mover><mi>p</mi><mo accent="true">→</mo></mover><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><msub><mo>∏</mo><mi>i</mi></msub><mfrac><mrow><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">\mathcal{C}[\vec{p}](x) = p_b(x) \prod_i \frac{p_i(x)}{p_b(x)}</annotation></semantics></math></p></li>
+<li><p><strong>Start with the operator:</strong> <span
+class="math inline">\(\mathcal{C}[\vec{p}](x) = p_b(x) \prod_i
+\frac{p_i(x)}{p_b(x)}\)</span></p></li>
 <li><p><strong>Use the Factorized Conditionals (Def 5.2)
 assumption:</strong></p>
 <ul>
-<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msub><mi>M</mi><mi>i</mi></msub></msub><mo stretchy="false" form="postfix">)</mo><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msubsup><mi>M</mi><mi>i</mi><mi>c</mi></msubsup></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p_i(x) = p_i(x|_{M_i}) p_b(x|_{M_i^c})</annotation></semantics></math>
-(
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>i</mi></msub><annotation encoding="application/x-tex">p_i</annotation></semantics></math>
-is active on mask $ M_i $, background on
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>M</mi><mi>i</mi><mi>c</mi></msubsup><annotation encoding="application/x-tex">M_i^c</annotation></semantics></math>)</li>
-<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msub><mi>M</mi><mi>b</mi></msub></msub><mo stretchy="false" form="postfix">)</mo><msub><mo>∏</mo><mi>j</mi></msub><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msub><mi>M</mi><mi>j</mi></msub></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p_b(x) = p_b(x|_{M_b}) \prod_j p_b(x|_{M_j})</annotation></semantics></math>
-(Background is just a product of its parts)</li>
+<li><span class="math inline">\(p_i(x) = p_i(x|_{M_i})
+p_b(x|_{M_i^c})\)</span> ( <span class="math inline">\(p_i\)</span> is
+active on mask $ M_i $, background on <span
+class="math inline">\(M_i^c\)</span>)</li>
+<li><span class="math inline">\(p_b(x) = p_b(x|_{M_b}) \prod_j
+p_b(x|_{M_j})\)</span> (Background is just a product of its parts)</li>
 </ul></li>
-<li><p><strong>Substitute this into the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><mrow><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><annotation encoding="application/x-tex">\frac{p_i(x)}{p_b(x)}</annotation></semantics></math>
-fraction:</strong>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mo>=</mo><mfrac><mrow><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msub><mi>M</mi><mi>i</mi></msub></msub><mo stretchy="false" form="postfix">)</mo><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msubsup><mi>M</mi><mi>i</mi><mi>c</mi></msubsup></msub><mo stretchy="false" form="postfix">)</mo></mrow><mrow><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msub><mi>M</mi><mi>b</mi></msub></msub><mo stretchy="false" form="postfix">)</mo><msub><mo>∏</mo><mi>j</mi></msub><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msub><mi>M</mi><mi>j</mi></msub></msub><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">\frac{p_i(x)}{p_b(x)} = \frac{p_i(x|_{M_i}) p_b(x|_{M_i^c})}{p_b(x|_{M_b}) \prod_j p_b(x|_{M_j})}</annotation></semantics></math></p></li>
-<li><p><strong>Realize that
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msubsup><mi>M</mi><mi>i</mi><mi>c</mi></msubsup></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p_b(x|_{M_i^c})</annotation></semantics></math>
-(background <em>outside</em> mask
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>M</mi><mi>i</mi></msub><annotation encoding="application/x-tex">M_i</annotation></semantics></math>)
-is just
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msub><mi>M</mi><mi>b</mi></msub></msub><mo stretchy="false" form="postfix">)</mo><msub><mo>∏</mo><mrow><mi>j</mi><mo>≠</mo><mi>i</mi></mrow></msub><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msub><mi>M</mi><mi>j</mi></msub></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p_b(x|_{M_b}) \prod_{j \neq i} p_b(x|_{M_j})</annotation></semantics></math>
-(all background parts <em>except</em>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>M</mi><mi>i</mi></msub><annotation encoding="application/x-tex">M_i</annotation></semantics></math>).</strong></p></li>
+<li><p><strong>Substitute this into the <span
+class="math inline">\(\frac{p_i(x)}{p_b(x)}\)</span> fraction:</strong>
+<span class="math inline">\(\frac{p_i(x)}{p_b(x)} = \frac{p_i(x|_{M_i})
+p_b(x|_{M_i^c})}{p_b(x|_{M_b}) \prod_j p_b(x|_{M_j})}\)</span></p></li>
+<li><p><strong>Realize that <span
+class="math inline">\(p_b(x|_{M_i^c})\)</span> (background
+<em>outside</em> mask <span class="math inline">\(M_i\)</span>) is just
+<span class="math inline">\(p_b(x|_{M_b}) \prod_{j \neq i}
+p_b(x|_{M_j})\)</span> (all background parts <em>except</em> <span
+class="math inline">\(M_i\)</span>).</strong></p></li>
 <li><p><strong>This leads to a <em>massive</em> cancellation!</strong>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mo>=</mo><mfrac><mrow><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msub><mi>M</mi><mi>i</mi></msub></msub><mo stretchy="false" form="postfix">)</mo><mo>×</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msub><mi>M</mi><mi>b</mi></msub></msub><mo stretchy="false" form="postfix">)</mo><msub><mo>∏</mo><mrow><mi>j</mi><mo>≠</mo><mi>i</mi></mrow></msub><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msub><mi>M</mi><mi>j</mi></msub></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msub><mi>M</mi><mi>b</mi></msub></msub><mo stretchy="false" form="postfix">)</mo><msub><mo>∏</mo><mrow><mi>j</mi><mo>≠</mo><mi>i</mi></mrow></msub><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msub><mi>M</mi><mi>j</mi></msub></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo>×</mo><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msub><mi>M</mi><mi>i</mi></msub></msub><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">\frac{p_i(x)}{p_b(x)} = \frac{p_i(x|_{M_i}) \times (p_b(x|_{M_b}) \prod_{j \neq i} p_b(x|_{M_j}))}{(p_b(x|_{M_b}) \prod_{j \neq i} p_b(x|_{M_j})) \times p_b(x|_{M_i})}</annotation></semantics></math></p></li>
-<li><p><strong>Everything cancels except:</strong>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mo>=</mo><mfrac><mrow><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msub><mi>M</mi><mi>i</mi></msub></msub><mo stretchy="false" form="postfix">)</mo></mrow><mrow><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msub><mi>M</mi><mi>i</mi></msub></msub><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">\frac{p_i(x)}{p_b(x)} = \frac{p_i(x|_{M_i})}{p_b(x|_{M_i})}</annotation></semantics></math></p></li>
+<span class="math inline">\(\frac{p_i(x)}{p_b(x)} = \frac{p_i(x|_{M_i})
+\times (p_b(x|_{M_b}) \prod_{j \neq i} p_b(x|_{M_j}))}{(p_b(x|_{M_b})
+\prod_{j \neq i} p_b(x|_{M_j})) \times p_b(x|_{M_i})}\)</span></p></li>
+<li><p><strong>Everything cancels except:</strong> <span
+class="math inline">\(\frac{p_i(x)}{p_b(x)} =
+\frac{p_i(x|_{M_i})}{p_b(x|_{M_i})}\)</span></p></li>
 <li><p><strong>Plug this simplified fraction back into the operator
-(Step 1):</strong>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒞</mi><mo stretchy="false" form="prefix">[</mo><mover><mi>p</mi><mo accent="true">→</mo></mover><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><msub><mo>∏</mo><mi>i</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msub><mi>M</mi><mi>i</mi></msub></msub><mo stretchy="false" form="postfix">)</mo></mrow><mrow><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msub><mi>M</mi><mi>i</mi></msub></msub><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathcal{C}[\vec{p}](x) = p_b(x) \prod_i \left( \frac{p_i(x|_{M_i})}{p_b(x|_{M_i})} \right)</annotation></semantics></math></p></li>
-<li><p><strong>Substitute
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p_b(x)</annotation></semantics></math>
-from Step 2 one last time:</strong>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒞</mi><mo stretchy="false" form="prefix">[</mo><mover><mi>p</mi><mo accent="true">→</mo></mover><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msub><mi>M</mi><mi>b</mi></msub></msub><mo stretchy="false" form="postfix">)</mo><msub><mo>∏</mo><mi>j</mi></msub><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msub><mi>M</mi><mi>j</mi></msub></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">)</mo></mrow><mo>×</mo><msub><mo>∏</mo><mi>i</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msub><mi>M</mi><mi>i</mi></msub></msub><mo stretchy="false" form="postfix">)</mo></mrow><mrow><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msub><mi>M</mi><mi>j</mi></msub></msub><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathcal{C}[\vec{p}](x) = \left( p_b(x|_{M_b}) \prod_j p_b(x|_{M_j}) \right) \times \prod_i \left( \frac{p_i(x|_{M_i})}{p_b(x|_{M_j})} \right)</annotation></semantics></math></p></li>
-<li><p><strong>The
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>∏</mo><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msub><mi>M</mi><mi>j</mi></msub></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\prod p_b(x|_{M_j})</annotation></semantics></math>
-terms cancel! We are left with:</strong>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>p</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>𝒞</mi><mo stretchy="false" form="prefix">[</mo><mover><mi>p</mi><mo accent="true">→</mo></mover><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msub><mi>M</mi><mi>b</mi></msub></msub><mo stretchy="false" form="postfix">)</mo><msub><mo>∏</mo><mi>i</mi></msub><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msub><mo stretchy="false" form="prefix">|</mo><msub><mi>M</mi><mi>i</mi></msub></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\hat{p}(x) = \mathcal{C}[\vec{p}](x) = p_b(x|_{M_b}) \prod_i p_i(x|_{M_i})</annotation></semantics></math></p></li>
+(Step 1):</strong> <span class="math inline">\(\mathcal{C}[\vec{p}](x) =
+p_b(x) \prod_i \left( \frac{p_i(x|_{M_i})}{p_b(x|_{M_i})}
+\right)\)</span></p></li>
+<li><p><strong>Substitute <span class="math inline">\(p_b(x)\)</span>
+from Step 2 one last time:</strong> <span
+class="math inline">\(\mathcal{C}[\vec{p}](x) = \left( p_b(x|_{M_b})
+\prod_j p_b(x|_{M_j}) \right) \times \prod_i \left(
+\frac{p_i(x|_{M_i})}{p_b(x|_{M_j})} \right)\)</span></p></li>
+<li><p><strong>The <span class="math inline">\(\prod
+p_b(x|_{M_j})\)</span> terms cancel! We are left with:</strong> <span
+class="math inline">\(\hat{p}(x) = \mathcal{C}[\vec{p}](x) =
+p_b(x|_{M_b}) \prod_i p_i(x|_{M_i})\)</span></p></li>
 </ol>
-<p><strong>Simplified Takeaway:</strong> The composed distribution
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>p</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{p}</annotation></semantics></math>
-is <em>literally</em> just a “copy-paste” job. It takes the “active”
-parts
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>M</mi><mi>i</mi></msub><annotation encoding="application/x-tex">M_i</annotation></semantics></math>
-from each parent $ p_i $, and the “background” part
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>M</mi><mi>b</mi></msub><annotation encoding="application/x-tex">M_b</annotation></semantics></math>
-from the background $ p_b $, and stitches them together. This is
-<em>exactly</em> the Projective Composition we wanted. The theory
-holds.</p>
+<p><strong>Simplified Takeaway:</strong> The composed distribution <span
+class="math inline">\(\hat{p}\)</span> is <em>literally</em> just a
+“copy-paste” job. It takes the “active” parts <span
+class="math inline">\(M_i\)</span> from each parent $ p_i $, and the
+“background” part <span class="math inline">\(M_b\)</span> from the
+background $ p_b $, and stitches them together. This is <em>exactly</em>
+the Projective Composition we wanted. The theory holds.</p>
 </blockquote>
 <h4 id="derivation-3-the-tragic-catch-section-7">Derivation 3: The
 Tragic Catch (Section 7)</h4>
@@ -760,11 +724,10 @@ we have the formula.</p>
 <p><strong>Not so fast.</strong> This is the paper’s final, subtle, and
 <em>critical</em> point.</p>
 <p>Theorem 6.1 guarantees that the <em>perfect</em> composed
-distribution
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>p</mi><mo accent="true">̂</mo></mover><mo>=</mo><mi>𝒞</mi><mo stretchy="false" form="prefix">[</mo><mover><mi>p</mi><mo accent="true">→</mo></mover><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\hat{p} = \mathcal{C}[\vec{p}]</annotation></semantics></math>
-<strong>exists at time
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">t=0</annotation></semantics></math></strong>
-(the final, clean image).</p>
+distribution <span class="math inline">\(\hat{p} =
+\mathcal{C}[\vec{p}]\)</span> <strong>exists at time <span
+class="math inline">\(t=0\)</span></strong> (the final, clean
+image).</p>
 <p>[cite_start]It does <em>not</em> guarantee that our <strong>diffusion
 sampler</strong> (like DDPM or DDIM) can <em>find it</em>[cite:
 373].</p>
@@ -775,45 +738,40 @@ process</em>.</li>
 <li>[cite_start]It relies on a key assumption: <strong>$
 \mathcal{C}[\vec{p}^t] = N_t[\mathcal{C}[\vec{p}]] $</strong>[cite:
 922].</li>
-<li>In English: “Composing the <em>noisy</em> images at step
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>”
-is the same as “taking the <em>final composed</em> image and
-<em>adding</em>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
-steps of noise to it.”</li>
+<li>In English: “Composing the <em>noisy</em> images at step <span
+class="math inline">\(t\)</span>” is the same as “taking the <em>final
+composed</em> image and <em>adding</em> <span
+class="math inline">\(t\)</span> steps of noise to it.”</li>
 <li>[cite_start]The authors prove this assumption <em>only</em> holds if
-the magic feature extractor
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝒜</mi><annotation encoding="application/x-tex">\mathcal{A}</annotation></semantics></math>
-is <strong>orthogonal</strong> (i.e., it’s a simple <em>rotation</em>,
-not a <em>skew</em> or <em>scale</em>)[cite: 375, 1003].</li>
-<li>For concepts like “style” and “content,”
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝒜</mi><annotation encoding="application/x-tex">\mathcal{A}</annotation></semantics></math>
-is almost certainly <em>non-orthogonal</em>.</li>
+the magic feature extractor <span
+class="math inline">\(\mathcal{A}\)</span> is
+<strong>orthogonal</strong> (i.e., it’s a simple <em>rotation</em>, not
+a <em>skew</em> or <em>scale</em>)[cite: 375, 1003].</li>
+<li>For concepts like “style” and “content,” <span
+class="math inline">\(\mathcal{A}\)</span> is almost certainly
+<em>non-orthogonal</em>.</li>
 </ul>
 <p>This means our sampler is “off-roading.” [cite_start]It’s following a
 path of “composing the noisy images,” but that path <em>does not</em>
 lead back to the true, “noised composed image”[cite: 378].</p>
 <p><strong>Lemma 7.2 (Composition Non-Smoothness):</strong>
 [cite_start]The paper proves that for a non-orthogonal $ \mathcal{A} $,
-the path
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒞</mi><mo stretchy="false" form="prefix">[</mo><msup><mover><mi>p</mi><mo accent="true">→</mo></mover><mi>t</mi></msup><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\mathcal{C}[\vec{p}^t]</annotation></semantics></math>
-is “non-smooth”[cite: 386]. [cite_start]A tiny, tiny change in the noise
-level
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
-can cause a <em>massive</em>, abrupt jump in the distribution[cite:
-384]. Our samplers, which take discrete steps, simply <em>cannot</em>
-follow this path. They fall off the cliff.</p>
+the path <span class="math inline">\(\mathcal{C}[\vec{p}^t]\)</span> is
+“non-smooth”[cite: 386]. [cite_start]A tiny, tiny change in the noise
+level <span class="math inline">\(t\)</span> can cause a
+<em>massive</em>, abrupt jump in the distribution[cite: 384]. Our
+samplers, which take discrete steps, simply <em>cannot</em> follow this
+path. They fall off the cliff.</p>
 <p>[cite_start]This explains Figure 5[cite: 221], where “yellow” (R=1,
 G=1, B=0) + “blue” (R=0, G=0, B=1) <em>works</em> (they are orthogonal
 in RGB space!), but “yellow” (1,1,0) + “red” (1,0,0) <em>fails</em>
 (they are <em>not</em> orthogonal).</p>
 <p><strong>Simplified Takeaway:</strong> We have a map to a hidden
-treasure
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>p</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{p}</annotation></semantics></math>
-(Theorem 6.1). But if the concepts aren’t “orthogonal,” the path to get
-there is full of invisible cliffs, and our samplers (DDPM/DDIM) fall off
-(Lemma 7.2). [cite_start]This suggests we may need <em>new samplers</em>
-that can handle these “hard” compositions[cite: 379, 1019].</p>
+treasure <span class="math inline">\(\hat{p}\)</span> (Theorem 6.1). But
+if the concepts aren’t “orthogonal,” the path to get there is full of
+invisible cliffs, and our samplers (DDPM/DDIM) fall off (Lemma 7.2).
+[cite_start]This suggests we may need <em>new samplers</em> that can
+handle these “hard” compositions[cite: 379, 1019].</p>
 <hr />
 <h3 id="part-4-experiments-results">🖼️ Part 4: Experiments &amp;
 Results</h3>
@@ -828,8 +786,7 @@ is the perfect “lab” to test composition because the “features” are
 explicit: color, shape, and <em>location</em>.</li>
 <li>[cite_start]<strong>SDXL (Stable Diffusion XL):</strong> The authors
 used real text-to-image models to show these principles apply in the
-wild, using text prompts as the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>i</mi></msub><annotation encoding="application/x-tex">p_i</annotation></semantics></math>
+wild, using text prompts as the <span class="math inline">\(p_i\)</span>
 distributions[cite: 20, 724].</li>
 </ol>
 <blockquote>
@@ -844,14 +801,10 @@ visual and undeniable.</p>
 <h4 id="result-1-the-smoking-gun-of-figure-3">Result 1: The “Smoking
 Gun” of Figure 3</h4>
 <p>This is the most important experiment. The authors test composing
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
-models, where each
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>i</mi></msub><annotation encoding="application/x-tex">p_i</annotation></semantics></math>
-generates <em>one object</em> at location
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>.
-The goal is to generate
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
-objects at once.</p>
+<span class="math inline">\(k\)</span> models, where each <span
+class="math inline">\(p_i\)</span> generates <em>one object</em> at
+location <span class="math inline">\(i\)</span>. The goal is to generate
+<span class="math inline">\(k\)</span> objects at once.</p>
 <table>
 <colgroup>
 <col style="width: 20%" />
@@ -863,8 +816,8 @@ objects at once.</p>
 <thead>
 <tr>
 <th style="text-align: left;">Experiment</th>
-<th style="text-align: left;">Background
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>b</mi></msub><annotation encoding="application/x-tex">p_b</annotation></semantics></math></th>
+<th style="text-align: left;">Background <span
+class="math inline">\(p_b\)</span></th>
 <th style="text-align: left;">Factorized?</th>
 <th style="text-align: left;">[cite_start]Result [cite: 113]</th>
 <th style="text-align: left;">Why?</th>
@@ -876,12 +829,10 @@ objects at once.</p>
 <td style="text-align: left;"><strong>Empty Background</strong></td>
 <td style="text-align: left;"><strong>Yes</strong> (approx.)</td>
 <td style="text-align: left;"><strong>Success (OOD)</strong></td>
-<td
-style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>i</mi></msub><annotation encoding="application/x-tex">p_i</annotation></semantics></math>
-is just “object
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
-+ empty.” This fits Def 5.2. [cite_start]The theory predicts success,
-and it works[cite: 116, 316].</td>
+<td style="text-align: left;"><span class="math inline">\(p_i\)</span>
+is just “object <span class="math inline">\(i\)</span> + empty.” This
+fits Def 5.2. [cite_start]The theory predicts success, and it
+works[cite: 116, 316].</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>(B)</strong></td>
@@ -898,13 +849,12 @@ spectacularly[cite: 119, 120].</td>
 <td style="text-align: left;"><strong>Cluttered $ p_b $</strong></td>
 <td style="text-align: left;"><strong>Yes</strong> (approx.)</td>
 <td style="text-align: left;"><strong>Success (OOD)</strong></td>
-<td style="text-align: left;">This is subtle. If
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>b</mi></msub><annotation encoding="application/x-tex">p_b</annotation></semantics></math>
-is <em>already</em> full of 0-4 random objects, adding one <em>more</em>
-at location
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
-is “approximately” factorized. [cite_start]The theory predicts success,
-and it works[cite: 121, 327].</td>
+<td style="text-align: left;">This is subtle. If <span
+class="math inline">\(p_b\)</span> is <em>already</em> full of 0-4
+random objects, adding one <em>more</em> at location <span
+class="math inline">\(i\)</span> is “approximately” factorized.
+[cite_start]The theory predicts success, and it works[cite: 121,
+327].</td>
 </tr>
 </tbody>
 </table>
@@ -913,10 +863,10 @@ compose <em>more</em> objects (from 1 to 9), the model produces
 <em>fewer</em> objects. [cite_start]It completely breaks[cite: 120].
 This is the <em>proof</em> that the Bayes Composition (which most people
 thought was right) is the wrong way to think about OOD composition.
-[cite_start]The <strong>choice of background
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>b</mi></msub><annotation encoding="application/x-tex">p_b</annotation></semantics></math>
-is not a minor detail—it is the <em>most critical choice</em> for
-successful composition</strong>[cite: 299].</p>
+[cite_start]The <strong>choice of background <span
+class="math inline">\(p_b\)</span> is not a minor detail—it is the
+<em>most critical choice</em> for successful composition</strong>[cite:
+299].</p>
 <h4 id="result-2-the-practical-orthogonality-heuristic-figs-7-8">Result
 2: The Practical Orthogonality Heuristic (Figs 7 &amp; 8)</h4>
 <p>This is the part you can use <em>today</em>. [cite_start]The paper’s
@@ -925,12 +875,11 @@ theory implies that composition works if the concepts are “Factorized”
 <em>approximated</em> by <strong>orthogonality</strong>[cite: 294].</p>
 <p>[cite_start]<strong>Lemma 8.1</strong> gives a testable prediction:
 If concepts are “Factorized,” their <em>mean difference vectors</em>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>μ</mi><mi>i</mi></msub><mo>−</mo><msub><mi>μ</mi><mi>b</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\mu_i - \mu_b)</annotation></semantics></math>
-must be orthogonal[cite: 416].</p>
+<span class="math inline">\((\mu_i - \mu_b)\)</span> must be
+orthogonal[cite: 416].</p>
 <p><strong>The Experiment:</strong> [cite_start]The authors said, “We
-don’t know the true
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\mu_i</annotation></semantics></math>
-vectors, so let’s use <strong>CLIP embeddings</strong> as an
+don’t know the true <span class="math inline">\(\mu_i\)</span> vectors,
+so let’s use <strong>CLIP embeddings</strong> as an
 approximation!”[cite: 422]. They took concepts, got their CLIP text and
 image embeddings, and computed the cosine similarity (a measure of
 “angle”). 0 = orthogonal, 1 = identical.</p>
@@ -983,36 +932,33 @@ case of the <strong>Composition Operator (Definition 5.1)</strong>.</p>
 <h4 id="the-link-between-cfg-and-projective-composition">The Link
 Between CFG and Projective Composition</h4>
 <p>When you write a prompt, you are defining a <em>conditional</em>
-distribution, $ p(x | c) $, or
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>c</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p_c(x)</annotation></semantics></math>.
-You also have the <em>unconditional</em> distribution, $ p_u(x) $, which
-is the model trained on no prompt (or an empty string).</p>
+distribution, $ p(x | c) $, or <span
+class="math inline">\(p_c(x)\)</span>. You also have the
+<em>unconditional</em> distribution, $ p_u(x) $, which is the model
+trained on no prompt (or an empty string).</p>
 <p>The standard CFG formula for the predicted score (or noise) is:</p>
 <blockquote>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">score</mtext><mtext mathvariant="normal">final</mtext></msub><mo>=</mo><msub><mtext mathvariant="normal">score</mtext><mi>u</mi></msub><mo>+</mo><mi>w</mi><mo>⋅</mo><mo stretchy="false" form="prefix">(</mo><msub><mtext mathvariant="normal">score</mtext><mi>c</mi></msub><mo>−</mo><msub><mtext mathvariant="normal">score</mtext><mi>u</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{score}_{\text{final}} = \text{score}_u + w \cdot (\text{score}_c - \text{score}_u)</annotation></semantics></math></p>
+<p><span class="math inline">\(\text{score}_{\text{final}} =
+\text{score}_u + w \cdot (\text{score}_c - \text{score}_u)\)</span></p>
 </blockquote>
-<p>Where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>w</mi><annotation encoding="application/x-tex">w</annotation></semantics></math>
-is the “guidance scale” (that slider in your UI, usually 7.5).</p>
+<p>Where <span class="math inline">\(w\)</span> is the “guidance scale”
+(that slider in your UI, usually 7.5).</p>
 <p>[cite_start]Now, look at the paper’s <strong>Composition Operator
 (Definition 5.1)</strong> [cite: 255] for a <em>single</em> composition
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">k=1</annotation></semantics></math>):</p>
+(<span class="math inline">\(k=1\)</span>):</p>
 <blockquote>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>∇</mi><mi>x</mi></msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>𝒞</mi><mo stretchy="false" form="prefix">[</mo><mover><mi>p</mi><mo accent="true">→</mo></mover><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>∇</mi><mi>x</mi></msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>∇</mi><mi>x</mi></msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msub><mi>p</mi><mn>1</mn></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><msub><mi>∇</mi><mi>x</mi></msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\nabla_x \log \mathcal{C}[\vec{p}](x) = \nabla_x \log p_b(x) + (\nabla_x \log p_1(x) - \nabla_x \log p_b(x))</annotation></semantics></math></p>
+<p><span class="math inline">\(\nabla_x \log \mathcal{C}[\vec{p}](x) =
+\nabla_x \log p_b(x) + (\nabla_x \log p_1(x) - \nabla_x \log
+p_b(x))\)</span></p>
 </blockquote>
 <p><strong>They are the <em>exact same formula</em></strong>.</p>
 <ul>
-<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>b</mi></msub><annotation encoding="application/x-tex">p_b</annotation></semantics></math>
-(background) is just
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>u</mi></msub><annotation encoding="application/x-tex">p_u</annotation></semantics></math>
-(unconditional).</li>
-<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>1</mn></msub><annotation encoding="application/x-tex">p_1</annotation></semantics></math>
-(concept) is just
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>c</mi></msub><annotation encoding="application/x-tex">p_c</annotation></semantics></math>
-(conditional).</li>
-<li>The CFG scale
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>w</mi><annotation encoding="application/x-tex">w</annotation></semantics></math>
-is just a <em>weight</em> on the “difference” term.</li>
+<li><span class="math inline">\(p_b\)</span> (background) is just <span
+class="math inline">\(p_u\)</span> (unconditional).</li>
+<li><span class="math inline">\(p_1\)</span> (concept) is just <span
+class="math inline">\(p_c\)</span> (conditional).</li>
+<li>The CFG scale <span class="math inline">\(w\)</span> is just a
+<em>weight</em> on the “difference” term.</li>
 </ul>
 <p>This paper provides the <em>first</em> solid theoretical
 justification for <em>why</em> CFG works so well, and <em>why</em> it
@@ -1020,24 +966,25 @@ can produce OOD images. It’s because CFG is (unknowingly) performing
 Projective Composition!</p>
 <h4 id="code-how-to-compose-two-concepts">Code: How to Compose
 <em>Two</em> Concepts</h4>
-<p>So, how do we compose “dog”
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>1</mn></msub><annotation encoding="application/x-tex">p_1</annotation></semantics></math>)
-+ “red hat”
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>2</mn></msub><annotation encoding="application/x-tex">p_2</annotation></semantics></math>)?
-We just <em>extend</em> the CFG formula, as defined by the paper’s
-<strong>Composition Operator</strong>!</p>
+<p>So, how do we compose “dog” (<span
+class="math inline">\(p_1\)</span>) + “red hat” (<span
+class="math inline">\(p_2\)</span>)? We just <em>extend</em> the CFG
+formula, as defined by the paper’s <strong>Composition
+Operator</strong>!</p>
 <p>We need to run the model (U-Net) <em>three</em> times per step:</p>
 <ol type="1">
-<li>Get the score for “dog”
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mtext mathvariant="normal">score</mtext><mn>1</mn></msub><annotation encoding="application/x-tex">\text{score}_1</annotation></semantics></math>).</li>
-<li>Get the score for “red hat”
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mtext mathvariant="normal">score</mtext><mn>2</mn></msub><annotation encoding="application/x-tex">\text{score}_2</annotation></semantics></math>).</li>
-<li>Get the score for the empty prompt
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mtext mathvariant="normal">score</mtext><mi>u</mi></msub><annotation encoding="application/x-tex">\text{score}_u</annotation></semantics></math>).</li>
+<li>Get the score for “dog” (<span
+class="math inline">\(\text{score}_1\)</span>).</li>
+<li>Get the score for “red hat” (<span
+class="math inline">\(\text{score}_2\)</span>).</li>
+<li>Get the score for the empty prompt (<span
+class="math inline">\(\text{score}_u\)</span>).</li>
 </ol>
 <p>Then, we combine them:</p>
 <blockquote>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">score</mtext><mtext mathvariant="normal">final</mtext></msub><mo>=</mo><msub><mtext mathvariant="normal">score</mtext><mi>u</mi></msub><mo>+</mo><msub><mi>w</mi><mn>1</mn></msub><mo>⋅</mo><mo stretchy="false" form="prefix">(</mo><msub><mtext mathvariant="normal">score</mtext><mn>1</mn></msub><mo>−</mo><msub><mtext mathvariant="normal">score</mtext><mi>u</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><msub><mi>w</mi><mn>2</mn></msub><mo>⋅</mo><mo stretchy="false" form="prefix">(</mo><msub><mtext mathvariant="normal">score</mtext><mn>2</mn></msub><mo>−</mo><msub><mtext mathvariant="normal">score</mtext><mi>u</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{score}_{\text{final}} = \text{score}_u + w_1 \cdot (\text{score}_1 - \text{score}_u) + w_2 \cdot (\text{score}_2 - \text{score}_u)</annotation></semantics></math></p>
+<p><span class="math inline">\(\text{score}_{\text{final}} =
+\text{score}_u + w_1 \cdot (\text{score}_1 - \text{score}_u) + w_2 \cdot
+(\text{score}_2 - \text{score}_u)\)</span></p>
 </blockquote>
 <p>[cite_start]This is the “linear score combination” [cite: 46] that
 the <em>entire paper</em> is about.</p>
@@ -1180,16 +1127,14 @@ Questions</h4>
 answers.</p>
 <ul>
 <li><strong>What is $ \mathcal{A} $?</strong> The paper proves that a
-magic feature space
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝒜</mi><annotation encoding="application/x-tex">\mathcal{A}</annotation></semantics></math>
+magic feature space <span class="math inline">\(\mathcal{A}\)</span>
 <em>can</em> exist, but it doesn’t tell us what it <em>is</em> or how to
 find it. Is it the U-Net’s internal layers? Is it the CLIP embedding
 space?</li>
 <li>[cite_start]<strong>The Background $ p_b $:</strong> The paper shows
-that the choice of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>b</mi></msub><annotation encoding="application/x-tex">p_b</annotation></semantics></math>
-is <em>critical</em>[cite: 299]. But what <em>is</em> the best $ p_b $?
-Is it the empty prompt? An average of all images? [cite_start]A model
+that the choice of <span class="math inline">\(p_b\)</span> is
+<em>critical</em>[cite: 299]. But what <em>is</em> the best $ p_b $? Is
+it the empty prompt? An average of all images? [cite_start]A model
 trained on <em>explicitly</em> empty images[cite: 116]? This is now a
 huge engineering question.</li>
 <li><strong>How Orthogonal is “Orthogonal”?</strong> The heuristic is an
@@ -1213,16 +1158,15 @@ Product” and “Bayes Composition” fail because they can’t create truly
 new, out-of-distribution (OOD) images[cite: 157, 180].</li>
 <li><strong>2. [cite_start]A New Definition: “Projective
 Composition”</strong>[cite: 204]. The right way to think about
-composition is <em>feature preservation</em>. A good composition
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>p</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{p}</annotation></semantics></math>
-is one whose “shadows” (projections) match its parents’ (e.g., its
-“style” looks like the “style” model, its “content” looks like the
-“content” model).</li>
+composition is <em>feature preservation</em>. A good composition <span
+class="math inline">\(\hat{p}\)</span> is one whose “shadows”
+(projections) match its parents’ (e.g., its “style” looks like the
+“style” model, its “content” looks like the “content” model).</li>
 <li><strong>3. [cite_start]The “How-To”: “Composition
 Operator”</strong>[cite: 248]. The formula we <em>already use</em> for
-CFG
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mtext mathvariant="normal">score</mtext><mi>u</mi></msub><mo>+</mo><mi>w</mi><mo>⋅</mo><mo stretchy="false" form="prefix">(</mo><msub><mtext mathvariant="normal">score</mtext><mi>c</mi></msub><mo>−</mo><msub><mtext mathvariant="normal">score</mtext><mi>u</mi></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\text{score}_u + w \cdot (\text{score}_c - \text{score}_u))</annotation></semantics></math>
-is the right tool for the job.</li>
+CFG <span class="math inline">\((\text{score}_u + w \cdot
+(\text{score}_c - \text{score}_u))\)</span> is the right tool for the
+job.</li>
 <li><strong>4. [cite_start]The “When”: “Factorized
 Conditionals”</strong>[cite: 264]. This tool works <em>if</em> the
 concepts are “disjoint.” This can be disjoint <em>pixels</em> (like in
@@ -1256,67 +1200,56 @@ fail?</em></p>
 <h4 id="glossary-of-technical-terms">Glossary of Technical Terms</h4>
 <ul>
 <li><strong>Bayes Composition:</strong> The (flawed) idea of composition
-by
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="prefix">|</mo><msub><mi>c</mi><mn>1</mn></msub><mo>,</mo><msub><mi>c</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>∝</mo><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="prefix">|</mo><msub><mi>c</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="prefix">|</mo><msub><mi>c</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(x|c_1, c_2) \propto p(x|c_1)p(x|c_2)/p(x)</annotation></semantics></math>.
-[cite_start]Fails for OOD samples[cite: 161, 180].</li>
-<li><strong>Composition Operator
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝒞</mi><annotation encoding="application/x-tex">\mathcal{C}</annotation></semantics></math>):</strong>
-The specific formula
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>∇</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>𝒞</mi><mo stretchy="false" form="prefix">[</mo><mover><mi>p</mi><mo accent="true">→</mo></mover><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>∇</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msub><mi>p</mi><mi>b</mi></msub><mo>+</mo><msub><mo>∑</mo><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>∇</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msub><mi>p</mi><mi>i</mi></msub><mo>−</mo><mi>∇</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msub><mi>p</mi><mi>b</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\nabla \log \mathcal{C}[\vec{p}] = \nabla \log p_b + \sum_i (\nabla \log p_i - \nabla \log p_b)</annotation></semantics></math>.
+by <span class="math inline">\(p(x|c_1, c_2) \propto
+p(x|c_1)p(x|c_2)/p(x)\)</span>. [cite_start]Fails for OOD samples[cite:
+161, 180].</li>
+<li><strong>Composition Operator (<span
+class="math inline">\(\mathcal{C}\)</span>):</strong> The specific
+formula <span class="math inline">\(\nabla \log \mathcal{C}[\vec{p}] =
+\nabla \log p_b + \sum_i (\nabla \log p_i - \nabla \log p_b)\)</span>.
 [cite_start]This is the practical formula this paper analyzes[cite: 248,
 255].</li>
-<li><strong>Diffeomorphism
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝒜</mi><annotation encoding="application/x-tex">\mathcal{A}</annotation></semantics></math>):</strong>
-A smooth, invertible mathematical function. [cite_start]The “magic”
-feature extractor that can disentangle concepts[cite: 339].</li>
+<li><strong>Diffeomorphism (<span
+class="math inline">\(\mathcal{A}\)</span>):</strong> A smooth,
+invertible mathematical function. [cite_start]The “magic” feature
+extractor that can disentangle concepts[cite: 339].</li>
 <li><strong>Factorized Conditionals (Def 5.2):</strong> The key
 <em>condition</em> for successful composition. [cite_start]It means each
-model
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>i</mi></msub><annotation encoding="application/x-tex">p_i</annotation></semantics></math>
-is <em>only</em> active on a <em>disjoint</em> set of coordinates or
-features
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>M</mi><mi>i</mi></msub><annotation encoding="application/x-tex">M_i</annotation></semantics></math>)[cite:
-264].</li>
+model <span class="math inline">\(p_i\)</span> is <em>only</em> active
+on a <em>disjoint</em> set of coordinates or features (<span
+class="math inline">\(M_i\)</span>)[cite: 264].</li>
 <li>[cite_start]<strong>Forward Process:</strong> The process of adding
-noise to an image
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mn>0</mn></msub><annotation encoding="application/x-tex">x_0</annotation></semantics></math>
-to get
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>T</mi></msub><annotation encoding="application/x-tex">x_T</annotation></semantics></math>[cite:
-67].</li>
+noise to an image <span class="math inline">\(x_0\)</span> to get <span
+class="math inline">\(x_T\)</span>[cite: 67].</li>
 <li>[cite_start]<strong>Out-of-Distribution (OOD):</strong> A sample
 that is unlike anything in the model’s training set (e.g., an “oil
 painting of your dog” for a model trained only on “your dog” and “oil
 paintings”)[cite: 40].</li>
 <li><strong>Projective Composition (Def 4.1):</strong> The paper’s
 <em>new, correct</em> definition of composition. [cite_start]A composed
-distribution
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>p</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{p}</annotation></semantics></math>
-is correct if its “projections” (features) match the marginal feature
-distributions of its parents[cite: 204].</li>
-<li><strong>Pushforward
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>#</mi><annotation encoding="application/x-tex">\#</annotation></semantics></math>):</strong>
-A mathematical operator.
-[cite_start]<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi mathvariant="normal">Π</mi><mi>#</mi><mi>p</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\Pi \# p)</annotation></semantics></math>
-simply means “the distribution of outputs you get from running all
-samples of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
-through the function $ \Pi $”[cite: 213].</li>
+distribution <span class="math inline">\(\hat{p}\)</span> is correct if
+its “projections” (features) match the marginal feature distributions of
+its parents[cite: 204].</li>
+<li><strong>Pushforward (<span
+class="math inline">\(\#\)</span>):</strong> A mathematical operator.
+[cite_start]<span class="math inline">\((\Pi \# p)\)</span> simply means
+“the distribution of outputs you get from running all samples of <span
+class="math inline">\(p\)</span> through the function $ \Pi $”[cite:
+213].</li>
 <li><strong>Reparameterization Equivariance (Lemma 6.2):</strong> The
-“magic” property of the Composition Operator.
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒞</mi><mo stretchy="false" form="prefix">[</mo><mi>𝒜</mi><mo stretchy="false" form="prefix">(</mo><mover><mi>p</mi><mo accent="true">→</mo></mover><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>𝒜</mi><mo stretchy="false" form="prefix">(</mo><mi>𝒞</mi><mo stretchy="false" form="prefix">[</mo><mover><mi>p</mi><mo accent="true">→</mo></mover><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathcal{C}[\mathcal{A}(\vec{p})] = \mathcal{A}(\mathcal{C}[\vec{p}])</annotation></semantics></math>.
-[cite_start]Composing <em>after</em> transforming is the same as
-transforming <em>after</em> composing[cite: 364, 366].</li>
+“magic” property of the Composition Operator. <span
+class="math inline">\(\mathcal{C}[\mathcal{A}(\vec{p})] =
+\mathcal{A}(\mathcal{C}[\vec{p}])\)</span>. [cite_start]Composing
+<em>after</em> transforming is the same as transforming <em>after</em>
+composing[cite: 364, 366].</li>
 <li>[cite_start]<strong>Reverse Process:</strong> The process of
-<em>sampling</em> by starting with noise
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>T</mi></msub><annotation encoding="application/x-tex">x_T</annotation></semantics></math>
-and iteratively denoising it to get an image
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mn>0</mn></msub><annotation encoding="application/x-tex">x_0</annotation></semantics></math>[cite:
-68].</li>
-<li><strong>Score Function
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>∇</mi><mi>x</mi></msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msub><mi>p</mi><mi>t</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>t</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\nabla_x \log p_t(x_t)</annotation></semantics></math>):</strong>
-The “magic compass.” A vector field that points “uphill” to more
-probable (less noisy) data. What the diffusion model learns to
-predict.</li>
+<em>sampling</em> by starting with noise <span
+class="math inline">\(x_T\)</span> and iteratively denoising it to get
+an image <span class="math inline">\(x_0\)</span>[cite: 68].</li>
+<li><strong>Score Function (<span class="math inline">\(\nabla_x \log
+p_t(x_t)\)</span>):</strong> The “magic compass.” A vector field that
+points “uphill” to more probable (less noisy) data. What the diffusion
+model learns to predict.</li>
 </ul>
 <h4 id="further-reading">Further Reading</h4>
 <ol type="1">
